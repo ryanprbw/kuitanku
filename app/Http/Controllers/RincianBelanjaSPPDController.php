@@ -8,7 +8,7 @@ use App\Models\Kegiatan;
 use App\Models\SubKegiatan;
 use App\Models\KodeRekening;
 use App\Models\KepalaDinas;
-use App\Models\PPTK;
+use App\Models\Pptk;
 use App\Models\Bendahara;
 use App\Models\Pegawai;
 use App\Models\RincianBelanjaSppd;
@@ -21,14 +21,22 @@ class RincianBelanjaSppdController extends Controller
     {
         $user = auth()->user();
 
+        // Menghitung total anggaran yang digunakan
+        $totalAnggaran = RincianBelanjaSppd::when($user->role !== 'superadmin', function ($query) use ($user) {
+            $query->where('bidang_id', $user->bidang_id);
+        })
+            ->sum('sebesar'); // Total anggaran dari kolom 'sebesar'
+
+        // Mengambil rincian belanja SPPD dengan relasi yang diperlukan
         $rincianSppd = RincianBelanjaSppd::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'kepalaDinas', 'pptk', 'bendahara', 'penerima'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
             })
             ->paginate(10);
 
-        return view('rincian_belanja_sppd.index', compact('rincianSppd'));
+        return view('rincian_belanja_sppd.index', compact('rincianSppd', 'totalAnggaran'));
     }
+
 
     public function create()
     {
@@ -37,7 +45,7 @@ class RincianBelanjaSppdController extends Controller
         $sub_kegiatans = SubKegiatan::all();
         $kode_rekenings = KodeRekening::all();
         $kepala_dinas = KepalaDinas::all();
-        $pptks = PPTK::all();
+        $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
 
@@ -63,10 +71,10 @@ class RincianBelanjaSppdController extends Controller
             'sebesar' => 'required|numeric|min:0',
             'untuk_pengeluaran' => 'required|string|max:255',
             'dpp' => 'nullable|numeric|min:0',
-           'nomor_st'=>'required|string|numeric',
-            'tanggal_st'=>'required|date',
-            'nomor_spd'=>'required|string|numeric',
-            'tanggal_spd'=>'required|date',
+            'nomor_st' => 'required|string|numeric',
+            'tanggal_st' => 'required|date',
+            'nomor_spd' => 'required|string|numeric',
+            'tanggal_spd' => 'required|date',
             'bulan' => 'required|string|max:20',
             'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
             'pptk_id' => 'required|exists:pptks,id',
@@ -76,7 +84,7 @@ class RincianBelanjaSppdController extends Controller
 
         $data = $request->all();
         $data['bidang_id'] = auth()->user()->bidang_id;
-        
+
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
@@ -95,7 +103,7 @@ class RincianBelanjaSppdController extends Controller
 
     public function show($id)
     {
-        $rincian = RincianBelanjaSppd::with([
+        $rincianSppd = RincianBelanjaSppd::with([
             'program',
             'kegiatan',
             'subKegiatan',
@@ -103,10 +111,10 @@ class RincianBelanjaSppdController extends Controller
             'kepalaDinas',
             'pptk',
             'bendahara',
-            'penerima'
+            'penerima',
         ])->findOrFail($id);
 
-        return view('rincian_belanja_sppd.show', compact('rincian'));
+        return view('rincian_belanja_sppd.show', compact('rincianSppd'));
     }
 
     public function edit($id)
@@ -145,10 +153,10 @@ class RincianBelanjaSppdController extends Controller
             'kode_rekening_id' => 'required|exists:kode_rekenings,id',
             'sebesar' => 'required|numeric|min:0',
             'untuk_pengeluaran' => 'required|string|max:255',
-            'nomor_st'=>'required|string|numeric',
-            'tanggal_st'=>'required|date',
-            'nomor_spd'=>'required|string|numeric',
-            'tanggal_spd'=>'required|date',
+            'nomor_st' => 'required|string|numeric',
+            'tanggal_st' => 'required|date',
+            'nomor_spd' => 'required|string|numeric',
+            'tanggal_spd' => 'required|date',
             'bulan' => 'required|string|max:20',
             'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
             'pptk_id' => 'required|exists:pptks,id',
@@ -157,7 +165,7 @@ class RincianBelanjaSppdController extends Controller
         ]);
 
         $data = $request->all();
-        
+
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
@@ -193,11 +201,11 @@ class RincianBelanjaSppdController extends Controller
 
     private function terbilang($angka)
     {
-        
+
         $angka = abs($angka);
         $huruf = [" ", " Satu", " Dua", " Tiga", " Empat", " Lima", " Enam", " Tujuh", " Delapan", " Sembilan", " Sepuluh", " Sebelas"];
         $temp = "";
-    
+
         if ($angka < 12) {
             $temp = $huruf[$angka];
         } elseif ($angka < 20) {
@@ -215,11 +223,11 @@ class RincianBelanjaSppdController extends Controller
         } elseif ($angka < 1000000000) {
             $temp = $this->terbilang((int)($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
         }
-    
+
         // Gunakan trim() untuk menghilangkan spasi ekstra
         return trim($temp);
     }
-    
+
 
 
 
@@ -229,24 +237,22 @@ class RincianBelanjaSppdController extends Controller
     }
 
     public function exportDetailPdf($id)
-{
-    $rincian = RincianBelanjaSppd::with([
-        'program',
-        'kegiatan',
-        'subKegiatan',
-        'kodeRekening',
-        'kepalaDinas',
-        'pptk',
-        'bendahara',
-        'penerima',
-        'bidang' // Tambahkan relasi bidang
-    ])->findOrFail($id);
+    {
+        $rincianSppd = RincianBelanjaSppd::with([
+            'program',
+            'kegiatan',
+            'subKegiatan',
+            'kodeRekening',
+            'kepalaDinas',
+            'pptk',
+            'bendahara',
+            'penerima',
+            'bidang' // Tambahkan relasi bidang
+        ])->findOrFail($id);
 
-    $pdf = Pdf::loadView('rincian_belanja_sppd.pdf_detail', compact('rincian'))
-    ->setPaper([0, 0, 612, 936]); // 8.5 x 13 inch in points (1 inch = 72 points)
+        $pdf = Pdf::loadView('rincian_belanja_sppd.pdf_detail', compact('rincianSppd'))
+            ->setPaper([0, 0, 612, 936]); // 8.5 x 13 inch in points (1 inch = 72 points)
 
-    return $pdf->stream("rincian-belanja-umum-{$rincian->id}.pdf");
-}
-
-
+        return $pdf->stream("rincian-belanja-sppd-{$rincianSppd->id}.pdf");
+    }
 }

@@ -34,7 +34,10 @@ class SubKegiatan extends Model
     {
         return $this->belongsTo(Kegiatan::class, 'kegiatan_id');
     }
-
+    public function rincianBelanjaUmum()
+    {
+        return $this->hasMany(RincianBelanjaUmum::class);
+    }
     /**
      * Relasi dengan KodeRekening.
      *
@@ -51,12 +54,12 @@ class SubKegiatan extends Model
         return $this->hasMany(KodeRekening::class, 'sub_kegiatan_id');
     }
     public function bidang()
-{
-    return $this->belongsTo(Bidang::class, 'bidang_id');
-}
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
+    }
 
-    
-    
+
+
     /**
      * Mengurangi anggaran pada SubKegiatan.
      *
@@ -82,7 +85,7 @@ class SubKegiatan extends Model
         Log::info("Anggaran sub kegiatan '{$this->nama_sub_kegiatan}' berhasil dikurangi sebesar: {$jumlah}. Sisa anggaran: {$this->anggaran}");
     }
     public function scopeByBidang($query, $bidangId)
-{
-    return $query->where('bidang_id', $bidangId);
-}
+    {
+        return $query->where('bidang_id', $bidangId);
+    }
 }

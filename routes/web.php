@@ -5,6 +5,8 @@ use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\KepalaDinasController;
 use App\Http\Controllers\KodeRekeningBidangController;
 use App\Http\Controllers\KodeRekeningController;
+use App\Http\Controllers\LaporanController;
+use App\Http\Controllers\LayoutController;
 use App\Http\Controllers\PegawaiController;
 use App\Http\Controllers\PptkController;
 use App\Http\Controllers\ProfileController;
@@ -25,12 +27,15 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+
+
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::resource('skpd', SkpdController::class);
-    
+
     Route::resource('program', ProgramController::class);
     Route::get('/program/{program}', [ProgramController::class, 'show'])->name('program.show');
 
@@ -42,7 +47,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('pegawais', PegawaiController::class);
     Route::resource('kode_rekening', KodeRekeningController::class);
 
-
+    Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
 
     Route::resource('rincian_belanja_umum', RincianBelanjaUmumController::class);
     Route::get('/rincian-belanja-umum/{id}/pdf', [RincianBelanjaUmumController::class, 'exportDetailPdf'])->name('rincian_belanja_umum.pdf.detail');
@@ -50,22 +55,16 @@ Route::middleware('auth')->group(function () {
 
 
     Route::resource('rincian_belanja_sppd', RincianBelanjaSppdController::class);
-    
+    Route::get('/rincian-belanja-sppd/{id}/pdf', [RincianBelanjaSppdController::class, 'exportDetailPdf'])->name('rincian_belanja_sppd.pdf.detail');
+});
 
 
 
 
 
 
-    });
 
 
 
 
-
-
-    
-
-
-
-require __DIR__.'/auth.php';
+require __DIR__ . '/auth.php';

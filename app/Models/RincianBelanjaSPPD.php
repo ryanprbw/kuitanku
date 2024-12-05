@@ -11,24 +11,24 @@ class RincianBelanjaSppd extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-       'program_id',
-       'bidang_id',
-        'kegiatan_id',
-        'sub_kegiatan_id',
         'kode_rekening_id',
+       'program_id',
+       'kegiatan_id',
+       'sub_kegiatan_id',
+       'kepala_dinas_id',
+       'pptk_id',
+       'bendahara_id',
+       'penerima_id',
+       'bidang_id',
         'sebesar', // Kolom jumlah uang (bruto)
         'terbilang_rupiah',
         'untuk_pengeluaran',
         'nomor_st',
         'tanggal_st',
-        'nomor_sppd',
-        'tanggal_sppd',
+        'nomor_spd',
+        'tanggal_spd',
         'bulan',
         'anggaran',
-        'kepala_dinas_id',
-        'pptk_id',
-        'bendahara_id',
-        'penerima_id',
     ];
     
 

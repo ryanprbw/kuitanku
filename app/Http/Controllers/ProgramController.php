@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Bidang;
@@ -12,22 +13,34 @@ class ProgramController extends Controller
 {
     public function index()
     {
+        // Mendapatkan data user yang login
         $user = auth()->user();
 
+        // Menghitung total anggaran sesuai dengan role user
         if ($user->role === 'superadmin') {
+            // Untuk superadmin, total anggaran dihitung dari seluruh Program
+            $totalAnggaran = Program::sum('anggaran');
+
+            // Menampilkan semua data Program
             $programs = Program::with('skpd', 'bidang')->paginate(10);
         } else {
+            // Untuk pengguna selain superadmin, total anggaran dihitung hanya berdasarkan bidang user
+            $totalAnggaran = Program::where('bidang_id', $user->bidang_id)->sum('anggaran');
+
+            // Menampilkan data Program sesuai dengan bidang yang dimiliki user
             $programs = Program::where('bidang_id', $user->bidang_id)
                 ->with('skpd', 'bidang')
                 ->paginate(10);
         }
 
-        return view('program.index', compact('programs'));
+        // Mengirimkan data ke view
+        return view('program.index', compact('programs', 'totalAnggaran'));
     }
+
     public function show(Program $program)
-{
-    return view('program.show', compact('program'));
-}
+    {
+        return view('program.show', compact('program'));
+    }
 
 
     public function create()

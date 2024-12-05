@@ -20,14 +20,22 @@ class RincianBelanjaUmumController extends Controller
     {
         $user = auth()->user();
 
+        // Menghitung total anggaran yang digunakan
+        $totalAnggaran = RincianBelanjaUmum::when($user->role !== 'superadmin', function ($query) use ($user) {
+            $query->where('bidang_id', $user->bidang_id);
+        })
+            ->sum('sebesar');
+
+        // Mengambil rincian belanja dengan relasi yang diperlukan
         $rincianBelanja = RincianBelanjaUmum::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'kepalaDinas', 'pptk', 'bendahara', 'penerima'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
             })
             ->paginate(10);
 
-        return view('rincian_belanja_umum.index', compact('rincianBelanja'));
+        return view('rincian_belanja_umum.index', compact('rincianBelanja', 'totalAnggaran'));
     }
+
 
     public function create()
     {
@@ -199,11 +207,11 @@ class RincianBelanjaUmumController extends Controller
 
     private function terbilang($angka)
     {
-        
+
         $angka = abs($angka);
         $huruf = [" ", " Satu", " Dua", " Tiga", " Empat", " Lima", " Enam", " Tujuh", " Delapan", " Sembilan", " Sepuluh", " Sebelas"];
         $temp = "";
-    
+
         if ($angka < 12) {
             $temp = $huruf[$angka];
         } elseif ($angka < 20) {
@@ -221,11 +229,11 @@ class RincianBelanjaUmumController extends Controller
         } elseif ($angka < 1000000000) {
             $temp = $this->terbilang((int)($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
         }
-    
+
         // Gunakan trim() untuk menghilangkan spasi ekstra
         return trim($temp);
     }
-    
+
 
 
 
@@ -235,24 +243,22 @@ class RincianBelanjaUmumController extends Controller
     }
 
     public function exportDetailPdf($id)
-{
-    $rincian = RincianBelanjaUmum::with([
-        'program',
-        'kegiatan',
-        'subKegiatan',
-        'kodeRekening',
-        'kepalaDinas',
-        'pptk',
-        'bendahara',
-        'penerima',
-        'bidang' // Tambahkan relasi bidang
-    ])->findOrFail($id);
+    {
+        $rincian = RincianBelanjaUmum::with([
+            'program',
+            'kegiatan',
+            'subKegiatan',
+            'kodeRekening',
+            'kepalaDinas',
+            'pptk',
+            'bendahara',
+            'penerima',
+            'bidang' // Tambahkan relasi bidang
+        ])->findOrFail($id);
 
-    $pdf = Pdf::loadView('rincian_belanja_umum.pdf_detail', compact('rincian'))
-    ->setPaper([0, 0, 612, 936]); // 8.5 x 13 inch in points (1 inch = 72 points)
+        $pdf = Pdf::loadView('rincian_belanja_umum.pdf_detail', compact('rincian'))
+            ->setPaper([0, 0, 612, 936]); // 8.5 x 13 inch in points (1 inch = 72 points)
 
-    return $pdf->stream("rincian-belanja-umum-{$rincian->id}.pdf");
-}
-
-
+        return $pdf->stream("rincian-belanja-umum-{$rincian->id}.pdf");
+    }
 }

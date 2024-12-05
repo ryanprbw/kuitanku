@@ -11,59 +11,56 @@
                 <div class="p-6 bg-white border-b border-gray-200">
 
                     <!-- Tombol Tambah Data -->
-                    <div class="flex justify-end mb-4">
-                        <a href="{{ route('rincian_belanja_umum.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                    <div class="flex justify-between items-center mb-4">
+                        <!-- <h3 class="text-lg font-medium text-gray-900">Rincian Belanja Umum</h3> -->
+                        <h3 class="text-lg font-medium text-gray-900">Total Rincian: {{ $rincianBelanja->count() }}</h3>
+                        <h3 class="text-lg font-semibold">Total Belanja yang digunakan : Rp {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
+                        <a href="{{ route('rincian_belanja_umum.create') }}" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Tambah Data
                         </a>
                     </div>
 
                     <!-- Tabel Data -->
                     <div class="overflow-x-auto">
-                        <table class="table-auto w-full text-left border-collapse border border-gray-200">
-                            <thead class="bg-gray-50">
+                        <table class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                            <thead>
                                 <tr>
-                                    <th class="px-4 py-2 border border-gray-200">No</th>
-                                    <th class="px-4 py-2 border border-gray-200">Nama Rincian Belanja Umum</th>
-                                    <th class="px-4 py-2 border border-gray-200">Program</th>
-                                    <th class="px-4 py-2 border border-gray-200">Kegiatan</th>
-                                    <th class="px-4 py-2 border border-gray-200">Bidang</th>
-                                    <th class="px-4 py-2 border border-gray-200">Sub Kegiatan</th>
-                                    <th class="px-4 py-2 border border-gray-200">Jumlah (Rp)</th>
-                                    <th class="px-4 py-2 border border-gray-200">Aksi</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Nama Rincian Belanja Umum</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Program</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Kegiatan</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Sub Kegiatan</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Jumlah (Rp)</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Dibuat pada :</th>
+                                    <th class="px-4 py-2 text-center text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody class="divide-y divide-gray-200">
                                 @forelse ($rincianBelanja as $rincian)
-                                    <tr class="hover:bg-gray-100">
-                                        <td class="px-4 py-2 border border-gray-200">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ $rincian->program->nama ?? '-' }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ $rincian->kegiatan->nama_kegiatan ?? '-' }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? '-' }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">{{ number_format($rincian->sebesar, 0, ',', '.') }}</td>
-                                        <td class="px-4 py-2 border border-gray-200">
-                                            <div class="flex space-x-2">
-                                                <a href="{{ route('rincian_belanja_umum.show', $rincian->id) }}" class="text-blue-500 hover:underline">
-                                                    Detail
-                                                </a>
-                                                <a href="{{ route('rincian_belanja_umum.edit', $rincian->id) }}" class="text-green-500 hover:underline">
-                                                    Edit
-                                                </a>
-                                                <form action="{{ route('rincian_belanja_umum.destroy', $rincian->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-500 hover:underline">
-                                                        Hapus
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <tr>
+                                    <td class="px-4 py-2">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $rincian->program->nama ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $rincian->kegiatan->nama_kegiatan ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
+                                    <td class="px-4 py-2">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? '-' }}</td>
+                                    <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}</td>
+                                    <td class="px-4 py-2">{{ $rincian->subKegiatan->created_at ?? '-' }}</td>
+                                    <td class="px-4 py-2 text-center">
+                                        <a href="{{ route('rincian_belanja_umum.show', $rincian->id) }}" class="text-green-500 hover:underline">Detail</a>
+                                        <a href="{{ route('rincian_belanja_umum.edit', $rincian->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
+                                        <form action="{{ route('rincian_belanja_umum.destroy', $rincian->id) }}" method="POST" class="inline ml-2" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="text-red-500 hover:underline">
+                                                Hapus
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
                                 @empty
-                                    <tr>
-                                        <td colspan="6" class="text-center py-4">Tidak ada data tersedia.</td>
-                                    </tr>
+                                <tr>
+                                    <td colspan="7" class="px-4 py-2 text-center text-gray-500">Tidak ada data tersedia.</td>
+                                </tr>
                                 @endforelse
                             </tbody>
                         </table>
@@ -76,6 +73,8 @@
 
                 </div>
             </div>
+
         </div>
+    </div>
     </div>
 </x-app-layout>

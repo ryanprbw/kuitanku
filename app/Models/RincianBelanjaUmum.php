@@ -11,8 +11,8 @@ class RincianBelanjaUmum extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-       'program_id',
-       'bidang_id',
+        'program_id',
+        'bidang_id',
         'kegiatan_id',
         'sub_kegiatan_id',
         'kode_rekening_id',
@@ -35,18 +35,18 @@ class RincianBelanjaUmum extends Model
         'bendahara_id',
         'penerima_id',
     ];
-    
 
-        // Relasi dengan KodeRekening
-        public function program()
+
+    // Relasi dengan KodeRekening
+    public function program()
     {
         return $this->belongsTo(Program::class, 'program_id');
     }
-        public function kegiatan()
+    public function kegiatan()
     {
         return $this->belongsTo(Kegiatan::class, 'kegiatan_id');
     }
-        public function subKegiatan()
+    public function subKegiatan()
     {
         return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id');
     }
@@ -77,11 +77,11 @@ class RincianBelanjaUmum extends Model
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
-    
 
 
 
-       
+
+
 
     // Relasi dengan KepalaDinas
 
@@ -194,5 +194,4 @@ class RincianBelanjaUmum extends Model
         }
         return trim($temp);
     }
-    
 }

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Http\Controllers;
 
 use App\Models\Bidang;
@@ -17,7 +18,16 @@ class KodeRekeningController extends Controller
     public function index()
     {
         $user = auth()->user();
-    
+
+        // Menghitung total anggaran
+        $totalAnggaran = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
+            // Jika user bukan superadmin, hitung hanya untuk bidang_id yang sesuai
+            $query->whereHas('subKegiatan', function ($q) use ($user) {
+                $q->where('bidang_id', $user->bidang_id);
+            });
+        })->sum('anggaran'); // Anggaran dihitung berdasarkan kode rekening yang sesuai
+
+        // Mendapatkan kode rekening dengan eager loading subKegiatan dan filter berdasarkan bidang_id jika perlu
         $kodeRekenings = KodeRekening::with('subKegiatan')
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->whereHas('subKegiatan', function ($q) use ($user) {
@@ -25,18 +35,20 @@ class KodeRekeningController extends Controller
                 });
             })
             ->paginate(20);
-    
-        return view('kode_rekening.index', compact('kodeRekenings'));
-    }
-    
-    public function show($id)
-{
-    // Ambil data kode rekening berdasarkan ID
-    $kodeRekening = KodeRekening::with(['subKegiatan', 'bidang'])->findOrFail($id);
 
-    // Tampilkan view show.blade.php dengan data kode rekening
-    return view('kode_rekening.show', compact('kodeRekening'));
-}
+        // Mengirimkan data kode rekening dan total anggaran ke view
+        return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran'));
+    }
+
+
+    public function show($id)
+    {
+        // Ambil data kode rekening berdasarkan ID
+        $kodeRekening = KodeRekening::with(['subKegiatan', 'bidang'])->findOrFail($id);
+
+        // Tampilkan view show.blade.php dengan data kode rekening
+        return view('kode_rekening.show', compact('kodeRekening'));
+    }
 
     /**
      * Menampilkan form untuk membuat Kode Rekening baru.
@@ -63,23 +75,23 @@ class KodeRekeningController extends Controller
             'nama_kode_rekening' => 'required|string|max:255',
             'anggaran' => 'required|numeric|min:0',
         ]);
-    
+
         $subKegiatan = SubKegiatan::findOrFail($request->sub_kegiatan_id);
-    
+
         // Validasi anggaran pada SubKegiatan mencukupi
         if ($subKegiatan->anggaran < $request->anggaran) {
             return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Sub Kegiatan tidak mencukupi.'])->withInput();
         }
-    
+
         // Simpan data Kode Rekening
         $kodeRekening = KodeRekening::create($request->all());
-    
+
         // Kurangi anggaran pada Sub Kegiatan
         $subKegiatan->kurangiAnggaran($request->anggaran);
-    
+
         return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil ditambahkan.');
     }
-    
+
 
     /**
      * Menampilkan form untuk mengedit Kode Rekening.
@@ -102,39 +114,39 @@ class KodeRekeningController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function update(Request $request, KodeRekening $kodeRekening)
-{
-    $request->validate([
-        'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
-        'nama_kode_rekening' => 'required|string|max:255',
-        'anggaran' => 'required|numeric|min:0',
-    ]);
+    {
+        $request->validate([
+            'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
+            'nama_kode_rekening' => 'required|string|max:255',
+            'anggaran' => 'required|numeric|min:0',
+        ]);
 
-    $subKegiatan = $kodeRekening->subKegiatan;
-    $oldAnggaran = $kodeRekening->anggaran;
+        $subKegiatan = $kodeRekening->subKegiatan;
+        $oldAnggaran = $kodeRekening->anggaran;
 
-    // Validasi anggaran baru mencukupi
-    if ($subKegiatan->anggaran + $oldAnggaran < $request->anggaran) {
-        return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Sub Kegiatan tidak mencukupi untuk pembaruan.'])->withInput();
+        // Validasi anggaran baru mencukupi
+        if ($subKegiatan->anggaran + $oldAnggaran < $request->anggaran) {
+            return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Sub Kegiatan tidak mencukupi untuk pembaruan.'])->withInput();
+        }
+
+        DB::beginTransaction();
+        try {
+            // Perbarui data Kode Rekening
+            $kodeRekening->update($request->all());
+
+            // Sesuaikan anggaran pada Sub Kegiatan
+            $subKegiatan->anggaran += $oldAnggaran; // Tambahkan kembali anggaran lama
+            $subKegiatan->anggaran -= $request->anggaran; // Kurangi dengan anggaran baru
+            $subKegiatan->save();
+
+            DB::commit();
+
+            return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()])->withInput();
+        }
     }
-
-    DB::beginTransaction();
-    try {
-        // Perbarui data Kode Rekening
-        $kodeRekening->update($request->all());
-
-        // Sesuaikan anggaran pada Sub Kegiatan
-        $subKegiatan->anggaran += $oldAnggaran; // Tambahkan kembali anggaran lama
-        $subKegiatan->anggaran -= $request->anggaran; // Kurangi dengan anggaran baru
-        $subKegiatan->save();
-
-        DB::commit();
-
-        return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil diperbarui.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat memperbarui data: ' . $e->getMessage()])->withInput();
-    }
-}
 
 
 
@@ -145,30 +157,28 @@ class KodeRekeningController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
     public function destroy(KodeRekening $kodeRekening)
-{
-    $subKegiatan = $kodeRekening->subKegiatan;
+    {
+        $subKegiatan = $kodeRekening->subKegiatan;
 
-    if (!$subKegiatan) {
-        return redirect()->back()->withErrors(['error' => 'Sub Kegiatan tidak ditemukan.']);
+        if (!$subKegiatan) {
+            return redirect()->back()->withErrors(['error' => 'Sub Kegiatan tidak ditemukan.']);
+        }
+
+        DB::beginTransaction();
+        try {
+            // Kembalikan anggaran ke Sub Kegiatan
+            $subKegiatan->anggaran += $kodeRekening->anggaran;
+            $subKegiatan->save();
+
+            // Hapus Kode Rekening
+            $kodeRekening->delete();
+
+            DB::commit();
+
+            return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil dihapus.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
+        }
     }
-
-    DB::beginTransaction();
-    try {
-        // Kembalikan anggaran ke Sub Kegiatan
-        $subKegiatan->anggaran += $kodeRekening->anggaran;
-        $subKegiatan->save();
-
-        // Hapus Kode Rekening
-        $kodeRekening->delete();
-
-        DB::commit();
-
-        return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil dihapus.');
-    } catch (\Exception $e) {
-        DB::rollBack();
-        return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
-    }
-}
-
-    
 }

@@ -36,7 +36,7 @@ class PptkController extends Controller
 
     public function edit($id)
     {
-        $pptk = Pptk::findOrFail($id);
+        $pptks = Pptk::findOrFail($id);
         $bidangs = Bidang::all();
         return view('pptks.edit', compact('pptks', 'bidangs'));
     }
