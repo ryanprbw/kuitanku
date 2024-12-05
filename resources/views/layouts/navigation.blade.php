@@ -156,7 +156,7 @@
         <ul class="space-y-2 font-medium">
             <li>
                 <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')"
-                    class="flex items-center p-2 text-gray-900  hover:bg-gray-100 dark:hover:bg-gray-700 group">
+                    class="flex items-center w-full p-2 text-gray-900 transition duration-75  group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                     <svg class="w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
                         aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 22 21">
                         <path
@@ -306,12 +306,21 @@
                         <x-nav-link :href="route('pegawais.index')" :active="request()->routeIs('pegawais')"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
 
-                            <span class="flex-1 ms-3 whitespace-nowrap">{{ __('Data Pegawai') }}</span>
+                            <span class="flex-1 ms-3 whitespace-nowrap">{{ __('Data Penerima Kuitansi') }}</span>
                             {{-- <span
                                 class="inline-flex items-center justify-center w-3 h-3 p-3 ms-3 text-sm font-medium text-blue-800 bg-blue-100 rounded-full dark:bg-blue-900 dark:text-blue-300"> </span> --}}
                         </x-nav-link>
                     </li>
+                    
                 </ul>
+                <li>
+                    <x-nav-link :href="route('laporan.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75  group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M8 8v1h4V8m4 7H4a1 1 0 0 1-1-1V5h14v9a1 1 0 0 1-1 1ZM2 1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
+                        </svg>
+                       <span class="flex-1 ms-3 whitespace-nowrap">Laporan</span>
+                    </x-nav-link>
+                 </li>
             </li>
         </ul>
     </div>

@@ -11,42 +11,40 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6">
                     <!-- Tabel Laporan -->
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400 border border-gray-300">
+                    <div class="relative overflow-x-auto">
+                        <table class="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400">
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400 border-b border-gray-300">
                                 <tr>
-                                    <th class="px-6 py-3 border-r border-gray-300">Program</th>
-                                    <th class="px-6 py-3 border-r border-gray-300">Kegiatan</th>
-                                    <th class="px-6 py-3 border-r border-gray-300">Sub Kegiatan</th>
-                                    <th class="px-6 py-3 border-r border-gray-300">Kode Rekening</th>
+                                    <th class="px-6 py-3">Program</th>
+                                    <th class="px-6 py-3">Kegiatan</th>
+                                    <th class="px-6 py-3">Sub Kegiatan</th>
+                                    <th class="px-6 py-3">Kode Rekening</th>
+                                    <th class="px-6 py-3">Bidang</th>
                                     <th class="px-6 py-3">Rincian Belanja Umum</th>
                                     <th class="px-6 py-3">Anggaran</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach ($rincianBelanjaUmum as $key => $rincianGroup)
+                                @foreach ($rincianBelanjaUmum as $rincianGroup)
                                     @foreach ($rincianGroup as $index => $rincian)
-                                        @if ($index == 0) <!-- Tampilkan data program, kegiatan, sub kegiatan, kode rekening hanya sekali -->
-                                            <tr class="border-t border-gray-300">
-                                                <td rowspan="{{ $rincianGroup->count() }}" class="border-r border-gray-300">{{ $rincian->program->nama ?? 'Tidak ada Program' }}</td>
-                                                <td rowspan="{{ $rincianGroup->count() }}" class="border-r border-gray-300">{{ $rincian->kegiatan->nama_kegiatan ?? 'Tidak ada Kegiatan' }}</td>
-                                                <td rowspan="{{ $rincianGroup->count() }}" class="border-r border-gray-300">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? 'Tidak ada Sub Kegiatan' }}</td>
-                                                <td rowspan="{{ $rincianGroup->count() }}" class="border-r border-gray-300">{{ $rincian->kodeRekening->nama_kode_rekening ?? 'Tidak ada Kode Rekening' }}</td>
-                                                <td class="border-r border-gray-300">{{ $rincian->untuk_pengeluaran }}</td>
-                                                <td class="border-r border-gray-300">{{ $rincian->anggaran }}</td>
+                                        <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
+                                            @if ($index == 0)
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4 ">{{ $rincian->program->nama ?? 'Tidak ada Program' }}</td>
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4">{{ $rincian->kegiatan->nama_kegiatan ?? 'Tidak ada Kegiatan' }}</td>
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? 'Tidak ada Sub Kegiatan' }}</td>
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4">{{ $rincian->kodeRekening->nama_kode_rekening ?? 'Tidak ada Kode Rekening' }}</td>
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4 border-r dark:border-gray-700">{{ $rincian->bidang->nama_bidang ?? 'Tidak ada Bidang' }}</td>
                                                 
-                                            </tr>
-                                        @else
-                                            <tr class="border-t border-gray-300">
-                                                <td class="border-r border-gray-300">{{ $rincian->untuk_pengeluaran }}</td>
-                                                <td class="border-r border-gray-300">{{ $rincian->anggaran }}</td>
-                                            </tr>
-                                        @endif
+                                            @endif
+                                            <td class="p-4">{{ $rincian->untuk_pengeluaran }}</td>
+                                            <td class="p-4">{{ $rincian->anggaran }}</td>
+                                        </tr>
                                     @endforeach
                                 @endforeach
                             </tbody>
                         </table>
                     </div>
+                    
                 </div>
             </div>
         </div>
