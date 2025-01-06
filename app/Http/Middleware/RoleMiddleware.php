@@ -24,7 +24,10 @@ class RoleMiddleware
         }
 
         // Cek apakah role user ada dalam daftar role yang diizinkan
-        $userRole = auth()->user()->role;
+        $userRole = auth()->user()->role;  // Pastikan kolom `role` ada di tabel `users`
+
+        // Jika menggunakan package Spatie Laravel Permission, gunakan `hasRole`:
+        // if (auth()->user()->hasRole($roles)) { ... }
 
         if (in_array($userRole, $roles)) {
             return $next($request);
@@ -38,6 +41,7 @@ class RoleMiddleware
             'url' => $request->url(),
         ]);
 
+        // Redirect dengan pesan error yang lebih jelas
         return redirect('/')->withErrors([
             'error' => 'Anda tidak memiliki akses ke halaman ini. Halaman ini hanya untuk role: ' . implode(', ', $roles),
         ]);

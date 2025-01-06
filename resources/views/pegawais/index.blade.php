@@ -14,9 +14,9 @@
         @endif
 
         <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-semibold">Total Pegawai: {{ $pegawais->count() }}</h3>
+            <h3 class="text-lg font-semibold">Total Penerima: {{ $pegawais->count() }}</h3>
             <a href="{{ route('pegawais.create') }}" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                Tambah Pegawai
+                Tambah Penerima Kuitansi
             </a>
         </div>
 

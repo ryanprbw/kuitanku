@@ -41,12 +41,14 @@
                                         <td class="px-4 py-2">{{ $subKegiatan->bidang->nama_bidang ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp {{ number_format($subKegiatan->anggaran, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2 text-center">
+                                            @if(Auth::user()->role !== 'bidang')
                                             <a href="{{ route('sub_kegiatan.edit', $subKegiatan->id) }}" class="text-blue-500 hover:underline">Edit</a>
                                             <form action="{{ route('sub_kegiatan.destroy', $subKegiatan->id) }}" method="POST" class="inline ml-2">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus sub kegiatan ini?')">Hapus</button>
                                             </form>
+                                            @endif
                                         </td>
                                     </tr>
                                 @empty

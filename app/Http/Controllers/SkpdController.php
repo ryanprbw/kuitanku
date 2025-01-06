@@ -20,7 +20,10 @@ class SkpdController extends Controller
     {
         return view('skpd.create');
     }
-
+    public function show(Skpd $skpds)
+    {
+        return view('skpd.show', compact('skpds'));
+    }
     // Menyimpan SKPD baru
     public function store(Request $request)
     {

@@ -42,6 +42,7 @@
                                     <td class="px-4 py-2">{{ $kodeRekening->bidang->nama_bidang ?? '-' }}</td>
                                     <td class="px-4 py-2">Rp {{ number_format($kodeRekening->anggaran, 0, ',', '.') }}</td>
                                     <td class="px-4 py-2 text-center">
+                                        @if(Auth::user()->role !== 'bidang')
                                         <a href="{{ route('kode_rekening.show', $kodeRekening->id) }}" class="text-green-500 hover:underline">Detail</a>
                                         <a href="{{ route('kode_rekening.edit', $kodeRekening->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
                                         <form action="{{ route('kode_rekening.destroy', $kodeRekening->id) }}" method="POST" class="inline ml-2">
@@ -49,6 +50,7 @@
                                             @method('DELETE')
                                             <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus kode rekening ini?')">Hapus</button>
                                         </form>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty

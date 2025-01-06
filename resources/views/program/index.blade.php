@@ -36,12 +36,14 @@
                                     <td class="px-4 py-2">Rp {{ number_format($program->anggaran, 0, ',', '.') }}</td>
                                     <td class="px-4 py-2 text-center">
                                         <a href="{{ route('program.show', $program->id) }}" class="text-green-500 hover:underline">Show</a>
+                                        @if(Auth::user()->role !== 'bidang')
                                         <a href="{{ route('program.edit', $program->id) }}" class="text-blue-500 hover:underline">Edit</a>
                                         <form action="{{ route('program.destroy', $program->id) }}" method="POST" class="inline">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus?')">Hapus</button>
                                         </form>
+                                        @endif
                                     </td>
 
                                 </tr>

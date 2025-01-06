@@ -25,6 +25,7 @@
                         <table class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                             <thead>
                                 <tr>
+                                    <th class="px-4 py-2 text-left text-gray-700">No.</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Nama Rincian Belanja Umum</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Program</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Kegiatan</th>
@@ -38,6 +39,7 @@
                             <tbody class="divide-y divide-gray-200">
                                 @forelse ($rincianBelanja as $rincian)
                                 <tr>
+                                    <td class="px-4 py-2">{{ $loop->iteration}}</td>
                                     <td class="px-4 py-2">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
                                     <td class="px-4 py-2">{{ $rincian->program->nama ?? '-' }}</td>
                                     <td class="px-4 py-2">{{ $rincian->kegiatan->nama_kegiatan ?? '-' }}</td>
@@ -46,8 +48,11 @@
                                     <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}</td>
                                     <td class="px-4 py-2">{{ $rincian->subKegiatan->created_at ?? '-' }}</td>
                                     <td class="px-4 py-2 text-center">
+                                        <a href="{{ route('rincian_belanja_umum.pdf.detail', $rincian->id) }}" class="text-yellow-500 hover:underline">Cetak Kuitansi</a>
                                         <a href="{{ route('rincian_belanja_umum.show', $rincian->id) }}" class="text-green-500 hover:underline">Detail</a>
+                                        
                                         <a href="{{ route('rincian_belanja_umum.edit', $rincian->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
+                                        @if(Auth::user()->role !== 'bidang')
                                         <form action="{{ route('rincian_belanja_umum.destroy', $rincian->id) }}" method="POST" class="inline ml-2" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data ini?');">
                                             @csrf
                                             @method('DELETE')
@@ -55,6 +60,7 @@
                                                 Hapus
                                             </button>
                                         </form>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty

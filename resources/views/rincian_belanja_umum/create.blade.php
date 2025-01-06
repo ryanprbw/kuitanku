@@ -69,15 +69,15 @@
                 </div>
 
                 {{-- Anggaran --}}
-                <div>
-                    <label for="anggaran" class="block mb-2 text-sm font-medium text-gray-700">Anggaran</label>
-                    <input type="number" step="0.01" id="anggaran" name="anggaran" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200" placeholder="Masukkan anggaran">
+              <div>
+                    <label for="anggaran" class="block mb-2 text-sm font-medium text-gray-700">Nominal Rp.</label>
+                    <input type="number" step="0.01" id="anggaran" name="anggaran" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200" placeholder="Nominal Rp." oninput="updateSebesar()">
                 </div>
-
+                
                 {{-- Sebesar --}}
                 <div>
                     <label for="sebesar" class="block mb-2 text-sm font-medium text-gray-700">Sebesar (Masukan Nilai Anggaran)</label>
-                    <input type="number" step="0.01" id="sebesar" name="sebesar" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200" placeholder="Masukkan jumlah">
+                    <input type="number" step="0.01" id="sebesar" name="sebesar" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200" placeholder="Masukkan jumlah" readonly>
                 </div>
 
                 {{-- Untuk Pengeluaran --}}
@@ -227,4 +227,14 @@
             allowClear: true
         });
     });
+</script>
+
+<script>
+    function updateSebesar() {
+        // Mengambil nilai dari input anggaran
+        const anggaranValue = document.getElementById('anggaran').value;
+        
+        // Mengisi nilai input sebesar dengan nilai anggaran (jika ada)
+        document.getElementById('sebesar').value = anggaranValue;
+    }
 </script>

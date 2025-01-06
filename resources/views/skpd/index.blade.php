@@ -41,21 +41,25 @@
                                     <td class="px-4 py-2">Rp {{ number_format($skpd->anggaran, 0, ',', '.') }}</td>
                                     <td class="px-4 py-2">{{ $skpd->created_at }}</td>
                                     <td class="px-4 py-2 text-center">
-                                        <!-- Tombol Show -->
+                                        <!-- Tombol Show (ini tetap bisa diakses oleh semua role) -->
                                         <a href="{{ route('skpd.show', $skpd->id) }}" class="text-green-500 hover:underline">Show</a>
-
-                                        <!-- Tombol Edit -->
-                                        <a href="{{ route('skpd.edit', $skpd->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
-
-                                        <!-- Tombol Hapus -->
-                                        <form action="{{ route('skpd.destroy', $skpd->id) }}" method="POST" class="inline ml-2">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus SKPD ini?')">
-                                                Hapus
-                                            </button>
-                                        </form>
-                                    </td>
+                                    
+                                        <!-- Tombol Edit (hanya bisa diakses oleh superadmin dan admin) -->
+                                        @if(Auth::user()->role !== 'bidang')
+                                            <a href="{{ route('skpd.edit', $skpd->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>
+                                        @endif
+                                    
+                                        <!-- Tombol Hapus (hanya bisa diakses oleh superadmin dan admin) -->
+                                        @if(Auth::user()->role !== 'bidang')
+                                            <form action="{{ route('skpd.destroy', $skpd->id) }}" method="POST" class="inline ml-2">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus SKPD ini?')">
+                                                    Hapus
+                                                </button>
+                                            </form>
+                                        @endif
+                                    </td>           
                                 </tr>
                                 @empty
                                 <tr>

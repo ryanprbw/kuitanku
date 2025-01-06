@@ -38,6 +38,7 @@
             {{$slot}}
         </main>
     </div>
+    @include('layouts.footer')
 </body>
 <link href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" rel="stylesheet" />
 

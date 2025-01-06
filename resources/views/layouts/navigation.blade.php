@@ -1,141 +1,4 @@
-<nav x-data="{ open: false }" class="bg-white border-b border-gray-100">
-    <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="flex justify-between h-16">
-            <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}">
-                        <x-application-logo class="block h-9 w-auto fill-current text-gray-800" />
-                    </a>
-                </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                        {{ __('Dashboard') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('skpd.index')" :active="request()->routeIs('skpd.index')">
-                        {{ __('SKPD / OPD') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('program.index')" :active="request()->routeIs('program.index')">
-                        {{ __('Program') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('kegiatan.index')" :active="request()->routeIs('kegiatan.index')">
-                        {{ __('Kegiatan') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('sub_kegiatan.index')" :active="request()->routeIs('sub_kegiatan.index')">
-                        {{ __('Sub Kegiatan') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('kode_rekening.index')" :active="request()->routeIs('kode_rekening.index')">
-                        {{ __('Kode Rekening') }}
-                    </x-nav-link>
-                </div>
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    <x-nav-link :href="route('rincian_belanja_umum.index')" :active="request()->routeIs('rincian_belanja_umum.index')">
-                        {{ __('Rincian Belanja Umum') }}
-                    </x-nav-link>
-                </div>
-            </div>
-
-            <!-- Settings Dropdown -->
-            <div class="hidden sm:flex sm:items-center sm:ms-6">
-                <x-dropdown align="right" width="48">
-                    <x-slot name="trigger">
-                        <button
-                            class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none transition ease-in-out duration-150">
-                            <div>{{ Auth::user()->name }}</div>
-
-                            <div class="ms-1">
-                                <svg class="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg"
-                                    viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd"
-                                        d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                        clip-rule="evenodd" />
-                                </svg>
-                            </div>
-                        </button>
-                    </x-slot>
-
-                    <x-slot name="content">
-                        <x-dropdown-link :href="route('profile.edit')">
-                            {{ __('Profile') }}
-                        </x-dropdown-link>
-
-                        <!-- Authentication -->
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-
-                            <x-dropdown-link :href="route('logout')"
-                                onclick="event.preventDefault();
-                                                this.closest('form').submit();">
-                                {{ __('Log Out') }}
-                            </x-dropdown-link>
-                        </form>
-                    </x-slot>
-                </x-dropdown>
-            </div>
-
-            <!-- Hamburger -->
-            <div class="-me-2 flex items-center sm:hidden">
-                <button @click="open = ! open"
-                    class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition duration-150 ease-in-out">
-                    <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
-                        <path :class="{ 'hidden': open, 'inline-flex': !open }" class="inline-flex"
-                            stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 6h16M4 12h16M4 18h16" />
-                        <path :class="{ 'hidden': !open, 'inline-flex': open }" class="hidden" stroke-linecap="round"
-                            stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Responsive Navigation Menu -->
-    <div :class="{ 'block': open, 'hidden': !open }" class="hidden sm:hidden">
-        <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
-                {{ __('Dashboard') }}
-            </x-responsive-nav-link>
-        </div>
-
-        <!-- Responsive Settings Options -->
-        <div class="pt-4 pb-1 border-t border-gray-200">
-            <div class="px-4">
-                <div class="font-medium text-base text-gray-800">{{ Auth::user()->name }}</div>
-                <div class="font-medium text-sm text-gray-500">{{ Auth::user()->email }}</div>
-            </div>
-
-            <div class="mt-3 space-y-1">
-                <x-responsive-nav-link :href="route('profile.edit')">
-                    {{ __('Profile') }}
-                </x-responsive-nav-link>
-
-                <!-- Authentication -->
-                <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-
-                    <x-responsive-nav-link :href="route('logout')"
-                        onclick="event.preventDefault();
-                                        this.closest('form').submit();">
-                        {{ __('Log Out') }}
-                    </x-responsive-nav-link>
-                </form>
-            </div>
-        </div>
-    </div>
-</nav>
 
 
 <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar"
@@ -171,58 +34,62 @@
             {{-- Kuitansi Bar --}}
 
             <li>
-                <button type="button"
-                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75  group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
-                    aria-controls="dropdown-kuitansi" data-collapse-toggle="dropdown-kuitansi">
-                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
-                        <path
-                            d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
+                <button type="button" id="dropdownButton" class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700" aria-controls="dropdown-kuitansi" data-collapse-toggle="dropdown-kuitansi">
+                    <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M20 4a2 2 0 0 0-2-2h-2V1a1 1 0 0 0-2 0v1h-3V1a1 1 0 0 0-2 0v1H6V1a1 1 0 0 0-2 0v1H2a2 2 0 0 0-2 2v2h20V4ZM0 18a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8H0v10Zm5-8h10a1 1 0 0 1 0 2H5a1 1 0 0 1 0-2Z"/>
                     </svg>
-                    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Kuitansi</span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 10 6">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 4 4 4-4" />
+                    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">Perencanaan Anggaran</span>
+                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
                     </svg>
                 </button>
+                
                 <ul id="dropdown-kuitansi" class="hidden py-2 space-y-2">
                     <li>
-                        <x-nav-link :href="route('skpd.index')" :active="request()->routeIs('skpd')"
-                            class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <x-nav-link :href="route('skpd.index')" :active="request()->routeIs('skpd')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('SKPD / OPD') }}
                         </x-nav-link>
-                        {{-- <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Products</a> --}}
                     </li>
                     <li>
-                        <x-nav-link :href="route('program.index')" :active="request()->routeIs('program')"
-                            class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <x-nav-link :href="route('program.index')" :active="request()->routeIs('program')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('PROGRAM') }}
                         </x-nav-link>
-                        {{-- <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Billing</a> --}}
                     </li>
                     <li>
-                        <x-nav-link :href="route('kegiatan.index')" :active="request()->routeIs('kegiatan.index')"
-                            class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <x-nav-link :href="route('kegiatan.index')" :active="request()->routeIs('kegiatan.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('KEGIATAN') }}
                         </x-nav-link>
-                        {{-- <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Billing</a> --}}
                     </li>
                     <li>
-                        <x-nav-link :href="route('sub_kegiatan.index')" :active="request()->routeIs('sub_kegiatan.index')"
-                            class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <x-nav-link :href="route('sub_kegiatan.index')" :active="request()->routeIs('sub_kegiatan.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('SUB KEGIATAN') }}
                         </x-nav-link>
-                        {{-- <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Billing</a> --}}
                     </li>
                     <li>
-
-                        <x-nav-link :href="route('kode_rekening.index')" :active="request()->routeIs('kode_rekening.index')"
-                            class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <x-nav-link :href="route('kode_rekening.index')" :active="request()->routeIs('kode_rekening.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('KODE REKENING') }}
                         </x-nav-link>
-                        {{-- <a href="#" class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">Billing</a> --}}
                     </li>
+                </ul>
+            </li>
+            
+            <li>
+                <button type="button"
+                id="dropdownButtonCetak"
+                class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
+                aria-controls="dropdown-cetak-kuitansi" data-collapse-toggle="dropdown-cetak-kuitansi">
+                <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                    aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 18 21">
+                    <path d="M15 12a1 1 0 0 0 .962-.726l2-7A1 1 0 0 0 17 3H3.77L3.175.745A1 1 0 0 0 2.208 0H1a1 1 0 0 0 0 2h.438l.6 2.255v.019l2 7 .746 2.986A3 3 0 1 0 9 17a2.966 2.966 0 0 0-.184-1h2.368c-.118.32-.18.659-.184 1a3 3 0 1 0 3-3H6.78l-.5-2H15Z" />
+                </svg>
+                <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap"> Cetak Kuitansi</span>
+                <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 10 6">
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 4 4 4-4" />
+                </svg>
+            </button>
+             
+                <ul id="dropdown-cetak-kuitansi" class="hidden py-2 space-y-2">
+                    
                     <li>
 
                         {{-- <x-nav-link :href="route('kode-rekening-bidang.index')" :active="request()->routeIs('kode-rekening-bidang.index')"
@@ -314,13 +181,25 @@
                     
                 </ul>
                 <li>
-                    <x-nav-link :href="route('laporan.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75  group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                    <x-nav-link :href="route('laporan.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                         <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                             <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M8 8v1h4V8m4 7H4a1 1 0 0 1-1-1V5h14v9a1 1 0 0 1-1 1ZM2 1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
                         </svg>
-                       <span class="flex-1 ms-3 whitespace-nowrap">Laporan</span>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Lap. Rincian Belanja Umum</span>
                     </x-nav-link>
-                 </li>
+                    <x-nav-link :href="route('laporan_sppd.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M8 8v1h4V8m4 7H4a1 1 0 0 1-1-1V5h14v9a1 1 0 0 1-1 1ZM2 1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Lap. Belanja SPPD</span>
+                    </x-nav-link>
+                    <x-nav-link :href="route('pegawais.index')" class="flex items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                        <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                            <path stroke="currentColor" stroke-linejoin="round" stroke-width="2" d="M8 8v1h4V8m4 7H4a1 1 0 0 1-1-1V5h14v9a1 1 0 0 1-1 1ZM2 1h16a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1Z"/>
+                        </svg>
+                        <span class="flex-1 ms-3 whitespace-nowrap">Data Penerima Kuitansi</span>
+                    </x-nav-link>
+                </li>
             </li>
         </ul>
     </div>
@@ -333,10 +212,59 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flowbite@1.5.3/dist/flowbite.min.js"></script>
 <script>
-    const dropdownButton = document.querySelector('[data-dropdown-toggle="dropdown"]');
-    const dropdownMenu = document.querySelector('#dropdown');
+    // Ambil elemen untuk dropdown tombol Perencanaan Anggaran
+    const dropdownButton = document.getElementById('dropdownButton');
+    const dropdownMenu = document.getElementById('dropdown-kuitansi');
 
+    // Ambil elemen untuk dropdown tombol Cetak Kuitansi
+    const dropdownButtonCetak = document.getElementById('dropdownButtonCetak');
+    const dropdownMenuCetak = document.getElementById('dropdown-cetak-kuitansi');
+
+    // Memeriksa status dropdown pertama (Perencanaan Anggaran) di localStorage saat halaman dimuat
+    window.onload = () => {
+        // Status untuk dropdown Perencanaan Anggaran
+        const dropdownStatus = localStorage.getItem('dropdownOpen');
+        console.log('Status Perencanaan Anggaran dari localStorage:', dropdownStatus);
+        if (dropdownStatus === 'true') {
+            dropdownMenu.classList.remove('hidden');
+        } else {
+            dropdownMenu.classList.add('hidden');
+        }
+
+        // Status untuk dropdown Cetak Kuitansi
+        const dropdownStatusCetak = localStorage.getItem('dropdownOpenCetak');
+        console.log('Status Cetak Kuitansi dari localStorage:', dropdownStatusCetak);
+        if (dropdownStatusCetak === 'true') {
+            dropdownMenuCetak.classList.remove('hidden');
+        } else {
+            dropdownMenuCetak.classList.add('hidden');
+        }
+    };
+
+    // Menangani klik pada tombol dropdown pertama (Perencanaan Anggaran)
     dropdownButton.addEventListener('click', () => {
-        dropdownMenu.classList.toggle('hidden');
+        if (dropdownMenu.classList.contains('hidden')) {
+            dropdownMenu.classList.remove('hidden');
+            localStorage.setItem('dropdownOpen', 'true');
+            console.log('Perencanaan Anggaran terbuka, status disimpan: true');
+        } else {
+            dropdownMenu.classList.add('hidden');
+            localStorage.setItem('dropdownOpen', 'false');
+            console.log('Perencanaan Anggaran tertutup, status disimpan: false');
+        }
+    });
+
+    // Menangani klik pada tombol dropdown kedua (Cetak Kuitansi)
+    dropdownButtonCetak.addEventListener('click', () => {
+        if (dropdownMenuCetak.classList.contains('hidden')) {
+            dropdownMenuCetak.classList.remove('hidden');
+            localStorage.setItem('dropdownOpenCetak', 'true');
+            console.log('Cetak Kuitansi terbuka, status disimpan: true');
+        } else {
+            dropdownMenuCetak.classList.add('hidden');
+            localStorage.setItem('dropdownOpenCetak', 'false');
+            console.log('Cetak Kuitansi tertutup, status disimpan: false');
+        }
     });
 </script>
+

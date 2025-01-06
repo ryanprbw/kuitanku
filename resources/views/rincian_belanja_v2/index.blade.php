@@ -34,11 +34,13 @@
                         <td>
                             <a href="{{ route('rincian_belanja_v2.show', $item->id) }}" class="btn btn-info btn-sm">Lihat</a>
                             <a href="{{ route('rincian_belanja_v2.edit', $item->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                            @if(Auth::user()->role !== 'bidang')
                             <form action="{{ route('rincian_belanja_v2.destroy', $item->id) }}" method="POST" class="d-inline-block">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">Hapus</button>
                             </form>
+                            @endif
                         </td>
                     </tr>
                 @endforeach
