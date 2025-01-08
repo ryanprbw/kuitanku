@@ -34,87 +34,11 @@
                     </ul>
 
                     <h3 class="text-lg font-semibold mb-4">{{ __("ALUR PEMBAYARAN BELANJA DAN PERJALANAN DINAS") }}</h3>
-                    <table class="min-w-full border-collapse border border-gray-300 mb-6">
-                        <thead>
-                            <tr>
-                                <th class="border border-gray-300 px-4 py-2">NO.</th>
-                                <th class="border border-gray-300 px-4 py-2">KEGIATAN</th>
-                                <th class="border border-gray-300 px-4 py-2">PPTK/Pelaksana Perjalanan Dinas</th>
-                                <th class="border border-gray-300 px-4 py-2">PPK</th>
-                                <th class="border border-gray-300 px-4 py-2">Bendahara Pengeluaran</th>
-                                <th class="border border-gray-300 px-4 py-2">Pengguna Anggaran</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">1</td>
-                                <td class="border border-gray-300 px-4 py-2">Membuat kuitansi pembayaran beserta bukti pendukung</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">2</td>
-                                <td class="border border-gray-300 px-4 py-2">Menerima berkas pembayaran dan melakukan verifikasi</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">3</td>
-                                <td class="border border-gray-300 px-4 py-2">Menerima berkas yang telah diverifikasi</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">4</td>
-                                <td class="border border-gray-300 px-4 py-2">Menandatangani berkas yang telah diverifikasi</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">5</td>
-                                <td class="border border-gray-300 px-4 py-2">Menandatangani berkas yang telah ditandatangani Pengguna Anggaran</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">6</td>
-                                <td class="border border-gray-300 px-4 py-2">Melakukan Input Berkas/Bukti Pengeluaran ke FMIS</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">7</td>
-                                <td class="border border-gray-300 px-4 py-2">Melakukan Input Berkas/Bukti Pengeluaran ke CMS</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                            <tr>
-                                <td class="border border-gray-300 px-4 py-2">8</td>
-                                <td class="border border-gray-300 px-4 py-2">Melakukan Proses Transfer di CMS</td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                                <td class="border border-gray-300 px-4 py-2"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <img src="{{ asset('assets/sop.png') }}" class="w-full" alt="Flowbite Logo" />
 
                     <h3 class="text-lg font-semibold mb-4">{{ __("KEPALA DINAS KEPENDUDUKAN DAN PENCATATAN SIPIL KABUPATEN TAPIN") }}</h3>
                     <p class="font-bold">Hj. Rina Indriani, ST</p>
+                    <img src="{{ asset('assets/ttd.png') }}" class="max-h-28" alt="Flowbite Logo" />
                     <p>NIP. 19820311 200501 2 017</p>
                 </div>
             </div>
