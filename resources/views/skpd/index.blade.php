@@ -42,7 +42,7 @@
                                     <td class="px-4 py-2">{{ $skpd->created_at }}</td>
                                     <td class="px-4 py-2 text-center">
                                         <!-- Tombol Show (ini tetap bisa diakses oleh semua role) -->
-                                        <a href="{{ route('skpd.show', $skpd->id) }}" class="text-green-500 hover:underline">Show</a>
+                                        {{-- <a href="{{ route('skpd.show', $skpd->id) }}" class="text-green-500 hover:underline">Show</a> --}}
                                     
                                         <!-- Tombol Edit (hanya bisa diakses oleh superadmin dan admin) -->
                                         @if(Auth::user()->role !== 'bidang')

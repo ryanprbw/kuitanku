@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('detail_belanjas', function (Blueprint $table) {
-            $table->foreign(['sub_rincian_belanjas_id'])->references(['id'])->on('sub_rincian_belanjas')->onUpdate('restrict')->onDelete('cascade');
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreign(['bidang_id'])->references(['id'])->on('bidangs')->onUpdate('no action')->onDelete('set null');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('detail_belanjas', function (Blueprint $table) {
-            $table->dropForeign('detail_belanjas_sub_rincian_belanjas_id_foreign');
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign('users_bidang_id_foreign');
         });
     }
 };

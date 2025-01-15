@@ -26,7 +26,7 @@
                                 <option value="">-- Pilih SKPD --</option>
                                 @foreach ($skpds as $skpd)
                                     <option value="{{ $skpd->id }}" {{ old('skpd_id') == $skpd->id ? 'selected' : '' }}>
-                                        {{ $skpd->nama }}
+                                        {{ $skpd->nama_skpd }}
                                     </option>
                                 @endforeach
                             </select>
@@ -41,7 +41,7 @@
                                 <option value="">-- Pilih Bidang --</option>
                                 @foreach ($bidangs as $bidang)
                                     <option value="{{ $bidang->id }}" {{ old('bidang_id') == $bidang->id ? 'selected' : '' }}>
-                                        {{ $bidang->nama }}
+                                        {{ $bidang->nama_bidang }}
                                     </option>
                                 @endforeach
                             </select>

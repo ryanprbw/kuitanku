@@ -49,7 +49,7 @@
                                     <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}</td>
                                     <td class="px-4 py-2">{{ $rincian->subKegiatan->created_at ?? '-' }}</td>
                                     <td class="px-4 py-2 text-center">
-                                        <a href="{{ route('rincian_belanja_sppd.pdf.detail', $rincian->id) }}" class="text-blue-500 hover:underline">Cetak SPPD</a>
+                                        <a href="{{ route('rincian_belanja_sppd.pdf.detail', $rincian->id) }}" class="text-blue-500 hover:underline">Cetak Kuitansi SPPD</a>
                                         <a href="{{ route('rincian_belanja_sppd.show', $rincian->id) }}" class="text-green-500 hover:underline">Detail</a>
 
                                         <a href="{{ route('rincian_belanja_sppd.edit', $rincian->id) }}" class="text-blue-500 hover:underline ml-2">Edit</a>

@@ -12,14 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('rincian_belanja_v2', function (Blueprint $table) {
-            $table->foreign(['bendahara_id'])->references(['id'])->on('bendaharas')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['kegiatan_id'])->references(['id'])->on('kegiatans')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['kepala_dinas_id'])->references(['id'])->on('kepala_dinas')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['kode_rekening_id'])->references(['id'])->on('kode_rekenings')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['pegawai_id'])->references(['id'])->on('pegawais')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['pptk_id'])->references(['id'])->on('pptks')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['program_id'])->references(['id'])->on('programs')->onUpdate('restrict')->onDelete('cascade');
-            $table->foreign(['sub_kegiatan_id'])->references(['id'])->on('sub_kegiatans')->onUpdate('restrict')->onDelete('cascade');
+            $table->foreign(['bendahara_id'])->references(['id'])->on('bendaharas')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['kegiatan_id'])->references(['id'])->on('kegiatans')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['kepala_dinas_id'])->references(['id'])->on('kepala_dinas')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['kode_rekening_id'])->references(['id'])->on('kode_rekenings')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['pegawai_id'])->references(['id'])->on('pegawais')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['pptk_id'])->references(['id'])->on('pptks')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['program_id'])->references(['id'])->on('programs')->onUpdate('no action')->onDelete('cascade');
+            $table->foreign(['sub_kegiatan_id'])->references(['id'])->on('sub_kegiatans')->onUpdate('no action')->onDelete('cascade');
         });
     }
 

@@ -12,12 +12,12 @@
                     <form action="{{ route('bendahara.store') }}" method="POST">
                         @csrf
                         <div class="mb-4">
-                            <label for="Nama" class="block text-sm font-medium text-gray-700">Nama</label>
-                            <input type="text" name="Nama" id="Nama" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
+                            <label for="nama" class="block text-sm font-medium text-gray-700">Nama</label>
+                            <input type="text" name="nama" id="nama" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required>
                         </div>
                         <div class="mb-4">
-                            <label for="NIP" class="block text-sm font-medium text-gray-700">NIP</label>
-                            <input type="text" name="NIP" id="NIP" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required maxlength="18" minlength="18" pattern="\d{18}">
+                            <label for="nip" class="block text-sm font-medium text-gray-700">NIP</label>
+                            <input type="text" name="nip" id="nip" class="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md" required maxlength="18" minlength="18" pattern="\d{18}">
                         </div>
                         <button type="submit" class="bg-blue-500 text-white px-6 py-2 rounded-md">Simpan</button>
                     </form>
