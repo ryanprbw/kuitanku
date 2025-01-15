@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\BarangController;
 use App\Http\Controllers\BendaharaController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\KepalaDinasController;
@@ -16,6 +17,7 @@ use App\Http\Controllers\RincianBelanjaSppdController;
 use App\Http\Controllers\RincianBelanjaUmumController;
 use App\Http\Controllers\SkpdController;
 use App\Http\Controllers\SubKegiatanController;
+use App\Http\Controllers\BukuPengeluaranBarangController;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Support\Facades\Route;
 
@@ -53,12 +55,21 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rincian-belanja-sppd/{id}/pdf', [RincianBelanjaSppdController::class, 'exportDetailPdf'])->name('rincian_belanja_sppd.pdf.detail');
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
     Route::get('/laporansppd', [LaporanSppdController::class, 'index'])->name('laporan_sppd.index');
+
+
+    Route::resource('barang', BarangController::class);
+    Route::get('/barang/{barang_id}/detail/create', [BarangController::class, 'createDetail'])->name('barang.detail.create');
+    // Simpan detail barang
+    Route::post('/barang/{barang_id}/detail', [BarangController::class, 'storeDetail'])->name('barang.detail.store');
+
+
+    // Route::prefix('buku-pengeluaran-barang')->group(function () {
+    //     Route::get('/', [BukuPengeluaranBarangController::class, 'index'])->name('barang.index');
+    //     Route::get('/create', [BukuPengeluaranBarangController::class, 'create'])->name('barang.create');
+    //     Route::post('/', [BukuPengeluaranBarangController::class, 'store'])->name('barang.store');
+    //     Route::get('/{id}/edit', [BukuPengeluaranBarangController::class, 'edit'])->name('barang.edit');
+    //     Route::put('/{id}', [BukuPengeluaranBarangController::class, 'update'])->name('barang.update');
+    //     Route::delete('/{id}', [BukuPengeluaranBarangController::class, 'destroy'])->name('barang.destroy');
+    // });
 });
-
-
-
-
-
-
-
 require __DIR__ . '/auth.php';

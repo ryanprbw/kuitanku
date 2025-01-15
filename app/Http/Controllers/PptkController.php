@@ -34,6 +34,7 @@ class PptkController extends Controller
         return redirect()->route('pptks.index')->with('success', 'PPTK berhasil ditambahkan.');
     }
 
+
     public function edit($id)
     {
         $pptks = Pptk::findOrFail($id);
