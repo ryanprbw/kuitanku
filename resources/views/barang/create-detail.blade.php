@@ -52,11 +52,8 @@
                             <label for="harga_satuan" class="block text-sm font-medium text-gray-700">Harga
                                 Satuan</label>
                             <input type="number" step="0.01" name="harga_satuan" id="harga_satuan"
-                                value="{{ old('harga_satuan') }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            @error('harga_satuan')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                                value="{{ $barang->harga_satuan }}" readonly
+                                class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
 
                         <!-- Sisa Saldo Barang -->
@@ -64,34 +61,22 @@
                             <label for="sisa_saldo_barang" class="block text-sm font-medium text-gray-700">Sisa Saldo
                                 Barang</label>
                             <input type="number" name="sisa_saldo_barang" id="sisa_saldo_barang"
-                                value="{{ old('sisa_saldo_barang') }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
-                            @error('sisa_saldo_barang')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                                value="{{ $barang->jumlah }}" readonly
+                                class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
 
                         <!-- Jumlah -->
                         <div class="mb-4">
                             <label for="jumlah" class="block text-sm font-medium text-gray-700">Jumlah</label>
-                            <input type="number" step="0.01" name="jumlah" id="jumlah" value="{{ old('jumlah') }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                readonly>
-                            @error('jumlah')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <input type="number" step="0.01" name="jumlah" id="jumlah" value="0" readonly
+                                class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
 
                         <!-- Nilai Saldo -->
                         <div class="mb-4">
                             <label for="nilai_saldo" class="block text-sm font-medium text-gray-700">Nilai Saldo</label>
-                            <input type="number" step="0.01" name="nilai_saldo" id="nilai_saldo"
-                                value="{{ old('nilai_saldo') }}"
-                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
-                                readonly>
-                            @error('nilai_saldo')
-                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                            @enderror
+                            <input type="number" step="0.01" name="nilai_saldo" id="nilai_saldo" value="0" readonly
+                                class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
 
                         <!-- Keterangan -->
@@ -133,15 +118,22 @@
                 const hargaSatuan = parseFloat(hargaSatuanInput.value) || 0;
                 const sisaSaldoBarang = parseInt(sisaSaldoBarangInput.value) || 0;
 
-                const jumlah = (sisaSaldoBarang + mutasiTambah - mutasiKeluar) * hargaSatuan;
+                // Hitung sisa saldo setelah mutasi
+                const sisaSaldoAkhir = sisaSaldoBarang + mutasiTambah - mutasiKeluar;
+
+                // Hitung jumlah barang
+                const jumlah = mutasiTambah - mutasiKeluar;
+
+                // Hitung nilai saldo
+                const nilaiSaldo = sisaSaldoAkhir * hargaSatuan;
+
+                // Perbarui nilai di form
                 jumlahInput.value = jumlah.toFixed(2);
-                nilaiSaldoInput.value = jumlah.toFixed(2);
+                nilaiSaldoInput.value = nilaiSaldo.toFixed(2);
             }
 
             mutasiTambahInput.addEventListener('input', calculateValues);
             mutasiKeluarInput.addEventListener('input', calculateValues);
-            hargaSatuanInput.addEventListener('input', calculateValues);
-            sisaSaldoBarangInput.addEventListener('input', calculateValues);
         });
     </script>
 </x-app-layout>

@@ -33,27 +33,43 @@ class BarangController extends Controller
     }
     public function storeDetail(Request $request, $barang_id)
     {
+        // Ambil data barang terkait
+        $barang = Barang::findOrFail($barang_id);
+
+        // Validasi input
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'mutasi_tambah' => 'nullable|integer',
             'mutasi_keluar' => 'nullable|integer',
-            'harga_satuan' => 'required|numeric',
-            'sisa_saldo_barang' => 'required|integer',
             'keterangan' => 'nullable|string|max:255',
         ]);
 
-        // Hitung Jumlah dan Nilai Saldo
-        $jumlah = ($validated['sisa_saldo_barang'] + ($validated['mutasi_tambah'] ?? 0) - ($validated['mutasi_keluar'] ?? 0)) * $validated['harga_satuan'];
-        $validated['jumlah'] = $jumlah;
-        $validated['nilai_saldo'] = $jumlah;
+        // Ambil harga satuan dari tabel barang
+        $validated['harga_satuan'] = $barang->harga_satuan;
 
-        // Tambahkan barang_id
+        // Hitung Sisa Saldo Barang (Setelah mutasi)
+        $validated['sisa_saldo_barang'] = $barang->jumlah + ($validated['mutasi_tambah'] ?? 0) - ($validated['mutasi_keluar'] ?? 0);
+
+        // Hitung Jumlah
+        $validated['jumlah'] = ($validated['mutasi_tambah'] ?? 0) - ($validated['mutasi_keluar'] ?? 0);
+
+        // Hitung Nilai Saldo (Jumlah Barang x Harga Satuan)
+        $validated['nilai_saldo'] = $validated['sisa_saldo_barang'] * $validated['harga_satuan'];
+
+        // Tambahkan barang_id ke data yang divalidasi
         $validated['barang_id'] = $barang_id;
 
+        // Simpan data detail barang
         DetailBarang::create($validated);
+
+        // Perbarui data barang di tabel barang
+        $barang->jumlah = $validated['sisa_saldo_barang'];
+        $barang->nilai_saldo = $barang->jumlah * $barang->harga_satuan;
+        $barang->save();
 
         return redirect()->route('barang.show', $barang_id)->with('success', 'Detail barang berhasil ditambahkan.');
     }
+
 
 
 
