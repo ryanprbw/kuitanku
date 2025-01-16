@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-
 use App\Models\Program;
 use App\Models\Kegiatan;
 use App\Models\SubKegiatan;
@@ -21,13 +20,10 @@ class RincianBelanjaSppdController extends Controller
     {
         $user = auth()->user();
 
-        // Menghitung total anggaran yang digunakan
         $totalAnggaran = RincianBelanjaSppd::when($user->role !== 'superadmin', function ($query) use ($user) {
             $query->where('bidang_id', $user->bidang_id);
-        })
-            ->sum('sebesar'); // Total anggaran dari kolom 'sebesar'
+        })->sum('sebesar');
 
-        // Mengambil rincian belanja SPPD dengan relasi yang diperlukan
         $rincianSppd = RincianBelanjaSppd::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'kepalaDinas', 'pptk', 'bendahara', 'penerima'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
@@ -36,7 +32,6 @@ class RincianBelanjaSppdController extends Controller
 
         return view('rincian_belanja_sppd.index', compact('rincianSppd', 'totalAnggaran'));
     }
-
 
     public function create()
     {
@@ -71,9 +66,9 @@ class RincianBelanjaSppdController extends Controller
             'sebesar' => 'required|numeric|min:0',
             'untuk_pengeluaran' => 'required|string|max:255',
             'dpp' => 'nullable|numeric|min:0',
-            'nomor_st' => 'required|string|numeric',
+            'nomor_st' => 'required|string',
             'tanggal_st' => 'required|date',
-            'nomor_spd' => 'required|string|numeric',
+            'nomor_spd' => 'required|string',
             'tanggal_spd' => 'required|date',
             'bulan' => 'required|string|max:20',
             'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
@@ -84,7 +79,6 @@ class RincianBelanjaSppdController extends Controller
 
         $data = $request->all();
         $data['bidang_id'] = auth()->user()->bidang_id;
-
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
@@ -125,7 +119,7 @@ class RincianBelanjaSppdController extends Controller
         $sub_kegiatans = SubKegiatan::all();
         $kode_rekenings = KodeRekening::all();
         $kepala_dinas = KepalaDinas::all();
-        $pptks = PPTK::all();
+        $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
 
@@ -153,9 +147,9 @@ class RincianBelanjaSppdController extends Controller
             'kode_rekening_id' => 'required|exists:kode_rekenings,id',
             'sebesar' => 'required|numeric|min:0',
             'untuk_pengeluaran' => 'required|string|max:255',
-            'nomor_st' => 'required|string|numeric',
+            'nomor_st' => 'required|string',
             'tanggal_st' => 'required|date',
-            'nomor_spd' => 'required|string|numeric',
+            'nomor_spd' => 'required|string',
             'tanggal_spd' => 'required|date',
             'bulan' => 'required|string|max:20',
             'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
@@ -165,11 +159,9 @@ class RincianBelanjaSppdController extends Controller
         ]);
 
         $data = $request->all();
-
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
-
         $selisih = $rincianSppd->sebesar - $request->sebesar;
 
         if ($selisih > 0) {
@@ -201,9 +193,8 @@ class RincianBelanjaSppdController extends Controller
 
     private function terbilang($angka)
     {
-
         $angka = abs($angka);
-        $huruf = [" ", " Satu", " Dua", " Tiga", " Empat", " Lima", " Enam", " Tujuh", " Delapan", " Sembilan", " Sepuluh", " Sebelas"];
+        $huruf = ["", "Satu", "Dua", "Tiga", "Empat", "Lima", "Enam", "Tujuh", "Delapan", "Sembilan", "Sepuluh", "Sebelas"];
         $temp = "";
 
         if ($angka < 12) {
@@ -211,25 +202,21 @@ class RincianBelanjaSppdController extends Controller
         } elseif ($angka < 20) {
             $temp = $this->terbilang($angka - 10) . " Belas";
         } elseif ($angka < 100) {
-            $temp = $this->terbilang((int)($angka / 10)) . " Puluh " . $this->terbilang($angka % 10);
+            $temp = $this->terbilang((int) ($angka / 10)) . " Puluh " . $this->terbilang($angka % 10);
         } elseif ($angka < 200) {
             $temp = "Seratus " . $this->terbilang($angka - 100);
         } elseif ($angka < 1000) {
-            $temp = $this->terbilang((int)($angka / 100)) . " Ratus " . $this->terbilang($angka % 100);
+            $temp = $this->terbilang((int) ($angka / 100)) . " Ratus " . $this->terbilang($angka % 100);
         } elseif ($angka < 2000) {
             $temp = "Seribu " . $this->terbilang($angka - 1000);
         } elseif ($angka < 1000000) {
-            $temp = $this->terbilang((int)($angka / 1000)) . " Ribu " . $this->terbilang($angka % 1000);
+            $temp = $this->terbilang((int) ($angka / 1000)) . " Ribu " . $this->terbilang($angka % 1000);
         } elseif ($angka < 1000000000) {
-            $temp = $this->terbilang((int)($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
+            $temp = $this->terbilang((int) ($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
         }
 
-        // Gunakan trim() untuk menghilangkan spasi ekstra
         return trim($temp);
     }
-
-
-
 
     private function terbilangRupiah($angka)
     {
@@ -247,11 +234,11 @@ class RincianBelanjaSppdController extends Controller
             'pptk',
             'bendahara',
             'penerima',
-            'bidang' // Tambahkan relasi bidang
+            'bidang',
         ])->findOrFail($id);
 
         $pdf = Pdf::loadView('rincian_belanja_sppd.pdf_detail', compact('rincianSppd'))
-            ->setPaper([0, 0, 612, 936]); // 8.5 x 13 inch in points (1 inch = 72 points)
+            ->setPaper([0, 0, 612, 936]);
 
         return $pdf->stream("rincian-belanja-sppd-{$rincianSppd->id}.pdf");
     }
