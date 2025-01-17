@@ -12,14 +12,14 @@ class RincianBelanjaSppd extends Model
 
     protected $fillable = [
         'kode_rekening_id',
-       'program_id',
-       'kegiatan_id',
-       'sub_kegiatan_id',
-       'kepala_dinas_id',
-       'pptk_id',
-       'bendahara_id',
-       'penerima_id',
-       'bidang_id',
+        'program_id',
+        'kegiatan_id',
+        'sub_kegiatan_id',
+        'kepala_dinas_id',
+        'pptk_id',
+        'bendahara_id',
+        'penerima_id',
+        'bidang_id',
         'sebesar', // Kolom jumlah uang (bruto)
         'terbilang_rupiah',
         'untuk_pengeluaran',
@@ -30,18 +30,18 @@ class RincianBelanjaSppd extends Model
         'bulan',
         'anggaran',
     ];
-    
 
-        // Relasi dengan KodeRekening
-        public function program()
+
+    // Relasi dengan KodeRekening
+    public function program()
     {
         return $this->belongsTo(Program::class, 'program_id');
     }
-        public function kegiatan()
+    public function kegiatan()
     {
         return $this->belongsTo(Kegiatan::class, 'kegiatan_id');
     }
-        public function subKegiatan()
+    public function subKegiatan()
     {
         return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id');
     }
@@ -72,11 +72,11 @@ class RincianBelanjaSppd extends Model
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
-    
 
 
 
-       
+
+
 
     // Relasi dengan KepalaDinas
 
@@ -151,7 +151,7 @@ class RincianBelanjaSppd extends Model
     }
 
     // Accessor untuk menghitung Netto
-  
+
 
 
     // Accessor untuk Terbilang
@@ -185,5 +185,5 @@ class RincianBelanjaSppd extends Model
         }
         return trim($temp);
     }
-    
+
 }
