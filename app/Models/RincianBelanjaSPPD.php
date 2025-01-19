@@ -55,7 +55,7 @@ class RincianBelanjaSppd extends Model
     }
     public function pptk()
     {
-        return $this->belongsTo(PPTK::class, 'pptk_id');
+        return $this->belongsTo(Pptk::class, 'pptk_id');
     }
     public function bendahara()
     {
