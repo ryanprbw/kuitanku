@@ -127,7 +127,7 @@ class RincianBelanjaUmumController extends Controller
         $sub_kegiatans = SubKegiatan::all();
         $kode_rekenings = KodeRekening::all();
         $kepala_dinas = KepalaDinas::all();
-        $pptks = PPTK::all();
+        $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
 
@@ -217,17 +217,17 @@ class RincianBelanjaUmumController extends Controller
         } elseif ($angka < 20) {
             $temp = $this->terbilang($angka - 10) . " Belas";
         } elseif ($angka < 100) {
-            $temp = $this->terbilang((int)($angka / 10)) . " Puluh " . $this->terbilang($angka % 10);
+            $temp = $this->terbilang((int) ($angka / 10)) . " Puluh " . $this->terbilang($angka % 10);
         } elseif ($angka < 200) {
             $temp = "Seratus " . $this->terbilang($angka - 100);
         } elseif ($angka < 1000) {
-            $temp = $this->terbilang((int)($angka / 100)) . " Ratus " . $this->terbilang($angka % 100);
+            $temp = $this->terbilang((int) ($angka / 100)) . " Ratus " . $this->terbilang($angka % 100);
         } elseif ($angka < 2000) {
             $temp = "Seribu " . $this->terbilang($angka - 1000);
         } elseif ($angka < 1000000) {
-            $temp = $this->terbilang((int)($angka / 1000)) . " Ribu " . $this->terbilang($angka % 1000);
+            $temp = $this->terbilang((int) ($angka / 1000)) . " Ribu " . $this->terbilang($angka % 1000);
         } elseif ($angka < 1000000000) {
-            $temp = $this->terbilang((int)($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
+            $temp = $this->terbilang((int) ($angka / 1000000)) . " Juta " . $this->terbilang($angka % 1000000);
         }
 
         // Gunakan trim() untuk menghilangkan spasi ekstra
