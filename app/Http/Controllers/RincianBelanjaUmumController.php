@@ -8,7 +8,7 @@ use App\Models\Kegiatan;
 use App\Models\SubKegiatan;
 use App\Models\KodeRekening;
 use App\Models\KepalaDinas;
-use App\Models\PPTK;
+use App\Models\Pptk;
 use App\Models\Bendahara;
 use App\Models\Pegawai;
 use Barryvdh\DomPDF\Facade\Pdf;
@@ -44,7 +44,7 @@ class RincianBelanjaUmumController extends Controller
         $sub_kegiatans = SubKegiatan::all();
         $kode_rekenings = KodeRekening::all();
         $kepala_dinas = KepalaDinas::all();
-        $pptks = PPTK::all();
+        $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
 
