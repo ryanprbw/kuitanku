@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Program;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
 
@@ -10,10 +11,23 @@ class SkpdController extends Controller
     // Menampilkan daftar SKPD
     public function index()
     {
-        $totalAnggaran = Skpd::sum('anggaran');
-        $skpds = Skpd::paginate(10); // Gunakan paginate()
-        return view('skpd.index', compact('skpds', 'totalAnggaran'));
+        // Ambil data SKPD dengan pagination
+        $skpds = Skpd::with(['programs'])
+            ->paginate(10) // Menggunakan pagination
+
+            ->through(function ($skpd) { // Perhitungan total per SKPD
+                $totalRealisasi = $skpd->programs->sum('anggaran');
+                $skpd->total_anggaran = $skpd->anggaran_awal - $totalRealisasi;
+                $skpd->total_realisasi = $totalRealisasi;
+                return $skpd;
+            });
+
+        return view('skpd.index', compact('skpds'));
     }
+
+
+
+
 
     // Menampilkan form untuk menambah SKPD baru
     public function create()
@@ -31,12 +45,14 @@ class SkpdController extends Controller
         $request->validate([
             'nama_skpd' => 'required|string|max:255', // Pastikan menggunakan nama yang benar
             'anggaran' => 'required|numeric',
+            'anggaran_awal' => 'required|numeric',
         ]);
 
         // Simpan data ke dalam database
         Skpd::create([
             'nama_skpd' => $request->nama_skpd, // Pastikan mengisi 'nama_skpd'
             'anggaran' => $request->anggaran,
+            'anggaran_awal' => $request->anggaran_awal,
         ]);
 
         return redirect()->route('skpd.index')->with('success', 'SKPD berhasil ditambahkan.');
@@ -55,11 +71,13 @@ class SkpdController extends Controller
         $request->validate([
             'nama_skpd' => 'required|string|max:255', // Ganti 'nama' menjadi 'nama_skpd'
             'anggaran' => 'required|numeric',
+            'anggaran_awal' => 'required|numeric',
         ]);
 
         $skpd->update([
             'nama_skpd' => $request->nama_skpd, // Ganti 'nama' menjadi 'nama_skpd'
             'anggaran' => $request->anggaran,
+            'anggaran_awal' => $request->anggaran,
         ]);
 
         return redirect()->route('skpd.index')->with('success', 'SKPD berhasil diperbarui.');

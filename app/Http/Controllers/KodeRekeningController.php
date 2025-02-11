@@ -73,6 +73,7 @@ class KodeRekeningController extends Controller
         $request->validate([
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
             'nama_kode_rekening' => 'required|string|max:255',
+            'anggaran_awal' => 'required|numeric|min:0',
             'anggaran' => 'required|numeric|min:0',
         ]);
 
@@ -118,6 +119,7 @@ class KodeRekeningController extends Controller
         $request->validate([
             'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
             'nama_kode_rekening' => 'required|string|max:255',
+            'anggaran_awal' => 'required|numeric|min:0',
             'anggaran' => 'required|numeric|min:0',
         ]);
 

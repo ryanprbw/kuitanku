@@ -10,7 +10,9 @@ class Skpd extends Model
     use HasFactory;
 
     protected $fillable = [
-        'nama_skpd', 'anggaran'
+        'nama_skpd',
+        'anggaran',
+        'anggaran_awal'
     ];
 
     /**
@@ -40,5 +42,9 @@ class Skpd extends Model
     {
         $this->anggaran += $jumlah;
         $this->save();
+    }
+    public function programs()
+    {
+        return $this->hasMany(Program::class, 'skpd_id', 'id');
     }
 }

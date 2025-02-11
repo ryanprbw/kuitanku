@@ -15,6 +15,7 @@ class KodeRekening extends Model
         'sub_kegiatan_id',  // Foreign key ke tabel sub_kegiatans
         'bidang_id',        // Foreign key ke tabel bidangs
         'nama_kode_rekening', // Nama kode rekening
+        'anggaran_awal',         // Anggaran
         'anggaran',         // Anggaran
     ];
 

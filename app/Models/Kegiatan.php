@@ -16,6 +16,7 @@ class Kegiatan extends Model
         'program_id',
         'nama_kegiatan',
         'anggaran',
+        'anggaran_awal',
         'bidang_id'
     ];
 
@@ -30,13 +31,16 @@ class Kegiatan extends Model
      */
     public function program()
     {
-        return $this->belongsTo(Program::class, 'program_id');
+        return $this->belongsTo(Program::class, 'program_id', 'id');
     }
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
-
+    public function getSisaAnggaranAttribute()
+    {
+        return $this->anggaran_awal - $this->anggaran;
+    }
     /**
      * Relasi dengan SubKegiatan.
      *
@@ -44,7 +48,7 @@ class Kegiatan extends Model
      */
     public function subKegiatan()
     {
-        return $this->hasMany(SubKegiatan::class, 'kegiatan_id');
+        return $this->hasMany(SubKegiatan::class, 'kegiatan_id', 'id');
     }
 
     /**
@@ -66,20 +70,21 @@ class Kegiatan extends Model
      * @throws \Exception Jika jumlah tidak valid atau anggaran tidak mencukupi.
      * @return void
      */
+
     public function kurangiAnggaran($jumlah)
     {
         DB::transaction(function () use ($jumlah) {
             if ($jumlah <= 0) {
                 throw new \Exception('Jumlah pengurangan anggaran harus lebih besar dari 0.');
             }
-    
+
             if ($this->anggaran < $jumlah) {
                 throw new \Exception('Anggaran tidak mencukupi.');
             }
-    
+
             $this->anggaran -= $jumlah;
             $this->save();
-    
+
             Log::info("Anggaran kegiatan dikurangi: {$jumlah}. Sisa anggaran: {$this->anggaran}");
         });
     }
@@ -104,8 +109,8 @@ class Kegiatan extends Model
         return $this->subKegiatan()->sum('anggaran');
     }
     public function scopeByBidang($query, $bidangId)
-{
-    return $query->where('bidang_id', $bidangId);
-}
+    {
+        return $query->where('bidang_id', $bidangId);
+    }
 
 }

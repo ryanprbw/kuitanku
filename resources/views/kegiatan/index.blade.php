@@ -9,15 +9,12 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
-                    @if (session('message'))
-                        <div class="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">
-                            {{ session('message.content') }}
-                        </div>
-                    @endif
-
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Total Kegiatan: {{ $kegiatans->count() }}</h3>
-                        <a href="{{ route('kegiatan.create') }}" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                        <h3 class="text-lg font-semibold">Total Anggaran: Rp
+                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
+                        <a href="{{ route('kegiatan.create') }}"
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Tambah Kegiatan
                         </a>
                     </div>
@@ -30,6 +27,8 @@
                                     <th class="px-4 py-2 text-left text-gray-700">Program</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Anggaran</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Anggaran Realisasi</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Sisa Anggaran</th>
                                     <th class="px-4 py-2 text-center text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
@@ -39,21 +38,32 @@
                                         <td class="px-4 py-2">{{ $kegiatan->nama_kegiatan }}</td>
                                         <td class="px-4 py-2">{{ $kegiatan->program->nama ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $kegiatan->bidang->nama_bidang ?? '-' }}</td>
-                                        <td class="px-4 py-2">Rp {{ number_format($kegiatan->anggaran, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2">Rp
+                                            {{ number_format($kegiatan->anggaran_awal, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2">Rp
+                                            {{ number_format($kegiatan->total_realisasi, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2">Rp {{ number_format($kegiatan->anggaran, 0, ',', '.') }}
+                                        </td>
                                         <td class="px-4 py-2 text-center">
-                                            @if(Auth::user()->role !== 'bidang')
-                                            <a href="{{ route('kegiatan.edit', $kegiatan->id) }}" class="text-blue-500 hover:underline">Edit</a>
-                                            <form action="{{ route('kegiatan.destroy', $kegiatan->id) }}" method="POST" class="inline ml-2">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="text-red-500 hover:underline" onclick="return confirm('Yakin ingin menghapus kegiatan ini?')">Hapus</button>
-                                            </form>
+                                            <a href="{{ route('kegiatan.show', $kegiatan->id) }}"
+                                                class="text-green-500 hover:underline">Show</a>
+                                            @if (Auth::user()->role !== 'bidang')
+                                                <a href="{{ route('kegiatan.edit', $kegiatan->id) }}"
+                                                    class="text-blue-500 hover:underline">Edit</a>
+                                                <form action="{{ route('kegiatan.destroy', $kegiatan->id) }}"
+                                                    method="POST" class="inline ml-2">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="text-red-500 hover:underline"
+                                                        onclick="return confirm('Yakin ingin menghapus kegiatan ini?')">Hapus</button>
+                                                </form>
                                             @endif
                                         </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">Tidak ada kegiatan yang terdaftar.</td>
+                                        <td colspan="7" class="px-4 py-2 text-center text-gray-500">Tidak ada
+                                            kegiatan yang terdaftar.</td>
                                     </tr>
                                 @endforelse
                             </tbody>

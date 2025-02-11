@@ -4,17 +4,19 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
 class SubKegiatan extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     // Field yang dapat diisi
     protected $fillable = [
         'kegiatan_id',        // Foreign key ke tabel kegiatan
         'nama_sub_kegiatan',  // Nama sub kegiatan
         'anggaran',           // Anggaran sub kegiatan
+        'anggaran_awal',           // Anggaran awal sub kegiatan
         'bidang_id',           // Anggaran sub kegiatan
     ];
 
@@ -32,7 +34,7 @@ class SubKegiatan extends Model
      */
     public function kegiatan()
     {
-        return $this->belongsTo(Kegiatan::class, 'kegiatan_id');
+        return $this->belongsTo(Kegiatan::class, 'kegiatan_id', 'id');
     }
     public function rincianBelanjaUmum()
     {

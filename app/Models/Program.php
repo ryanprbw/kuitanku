@@ -8,25 +8,33 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Program extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-       'skpd_id', 'nama', 'anggaran', 'bidang_id'
+        'skpd_id',
+        'nama',
+        'anggaran',
+        'anggaran_awal',
+        'bidang_id'
     ];
 
     // Relasi dengan tabel Kegiatan
     public function kegiatan()
     {
-        return $this->hasMany(Kegiatan::class, 'program_id');
+        return $this->hasMany(Kegiatan::class, 'program_id', 'id');
+    }
+    public function kegiatans()
+    {
+        return $this->hasMany(Kegiatan::class, 'program_id', 'id');
     }
     public function skpd()
     {
-        return $this->belongsTo(Skpd::class,'skpd_id');
+        return $this->belongsTo(Skpd::class, 'skpd_id');
     }
 
     public function bidang()
     {
-        return $this->belongsTo(Bidang::class,'bidang_id');
+        return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
     // Mengurangi anggaran pada Program
@@ -51,6 +59,7 @@ class Program extends Model
         $this->anggaran += $jumlah;
         $this->save();
     }
+
 }
 
 
