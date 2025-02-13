@@ -11,8 +11,8 @@
                 <div class="p-6 bg-white border-b border-gray-200">
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Total Program: {{ $programs->count() }}</h3>
-                        <h3 class="text-lg font-semibold">Sisa Anggaran: Rp
-                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
+                        {{-- <h3 class="text-lg font-semibold">Sisa Anggaran: Rp
+                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3> --}}
                         <a href="{{ route('program.create') }}"
                             class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Tambah Program

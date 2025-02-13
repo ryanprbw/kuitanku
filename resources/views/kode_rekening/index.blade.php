@@ -17,8 +17,8 @@
 
                     <div class="flex justify-between items-center mb-4">
                         <h3 class="text-lg font-medium text-gray-900">Kode Rekening</h3>
-                        <h3 class="text-lg font-semibold">Sisa Anggaran: Rp
-                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
+                        {{-- <h3 class="text-lg font-semibold">Sisa Anggaran: Rp
+                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3> --}}
                         <a href="{{ route('kode_rekening.create') }}"
                             class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                             Tambah Kode Rekening
