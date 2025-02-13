@@ -27,22 +27,19 @@ class Skpd extends Model
         if ($this->anggaran < $jumlah) {
             throw new \Exception('Anggaran tidak mencukupi untuk mengurangi jumlah tersebut.');
         }
-
         $this->anggaran -= $jumlah;
         $this->save();
     }
 
-    /**
-     * Tambah anggaran SKPD.
-     *
-     * @param float $jumlah
-     * @return void
-     */
     public function tambahAnggaran($jumlah)
     {
+        if ($jumlah < 0) {
+            throw new \Exception('Jumlah anggaran yang ditambahkan tidak boleh negatif.');
+        }
         $this->anggaran += $jumlah;
         $this->save();
     }
+
     public function programs()
     {
         return $this->hasMany(Program::class, 'skpd_id', 'id');

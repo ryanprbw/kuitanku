@@ -30,12 +30,10 @@
                                 <tr>
                                     <th class="px-4 py-2 text-left text-gray-700">Nama Sub Kegiatan</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Kegiatan</th>
-                                    {{-- <th class="px-4 py-2 text-left">Sisa Anggaran Kegiatan</th> --}}
                                     <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
-                                    <th class="px-4 py-2 text-left text-gray-700">Anggaran</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Anggaran Awal</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Anggaran Realisasi</th>
-                                    <th class="px-4 py-2 text-left text-gray-700">Sisa Anggaran </th>
-                                    {{-- <th class="px-4 py-2 text-left">Total Realisasi</th> --}}
+                                    <th class="px-4 py-2 text-left text-gray-700">Sisa Anggaran</th>
                                     <th class="px-4 py-2 text-center text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
@@ -44,26 +42,17 @@
                                     <tr>
                                         <td class="px-4 py-2">{{ $subKegiatan->nama_sub_kegiatan }}</td>
                                         <td class="px-4 py-2">{{ $subKegiatan->kegiatan->nama_kegiatan ?? '-' }}</td>
-                                        {{-- <td class="px-4 py-2">Rp
-                                            {{ number_format($subKegiatan->anggaran_kegiatan, 0, ',', '.') }}</td> --}}
                                         <td class="px-4 py-2">{{ $subKegiatan->bidang->nama_bidang ?? '-' }}</td>
-                                        <!-- Menampilkan Anggaran Realisasi -->
+                                        <!-- Anggaran Awal -->
                                         <td class="px-4 py-2">Rp
                                             {{ number_format($subKegiatan->anggaran_awal, 0, ',', '.') }}</td>
-
-                                        <!-- Menampilkan Anggaran Realisasi -->
-                                        {{-- <td class="px-4 py-2">Rp
-                                            {{ number_format($subKegiatan->anggaran_realisasi, 0, ',', '.') }}</td> --}}
-
-                                        <!-- Menampilkan Sisa Anggaran -->
+                                        <!-- Anggaran Realisasi (dari rincian belanja) -->
                                         <td class="px-4 py-2">Rp
                                             {{ number_format($subKegiatan->total_realisasi, 0, ',', '.') }}</td>
+                                        <!-- Menghitung Sisa Anggaran -->
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($subKegiatan->anggaran, 0, ',', '.') }}</td>
-
-                                        <!-- Menampilkan Anggaran Kegiatan -->
-
-                                        <!-- Menampilkan Total Realisasi -->
+                                            {{ number_format($subKegiatan->anggaran, 0, ',', '.') }}
+                                        </td>
                                         <td class="px-4 py-2 text-center">
                                             @if (Auth::user()->role !== 'bidang')
                                                 <a href="{{ route('sub_kegiatan.edit', $subKegiatan->id) }}"
@@ -80,7 +69,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="px-4 py-2 text-center text-gray-500">Tidak ada sub
+                                        <td colspan="7" class="px-4 py-2 text-center text-gray-500">Tidak ada sub
                                             kegiatan yang terdaftar.</td>
                                     </tr>
                                 @endforelse

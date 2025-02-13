@@ -62,12 +62,13 @@
                             <label for="anggaran_awal" class="block text-sm font-medium text-gray-700">Anggaran
                                 Awal</label>
                             <input type="number" name="anggaran_awal" id="anggaran_awal"
-                                value="{{ old('anggaran_awal', $program->anggaran_awal) }}" readonly
+                                value="{{ old('anggaran_awal', $program->anggaran_awal) }}" required
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             @error('anggaran_awal')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+
 
                         <div>
                             <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran</label>
@@ -92,31 +93,34 @@
     </div>
 
     <script>
-        // Validasi anggaran agar tidak melebihi anggaran_awal
         const anggaranField = document.getElementById('anggaran');
         const anggaranAwalField = document.getElementById('anggaran_awal');
         const anggaranError = document.getElementById('anggaran_error');
-        const form = document.getElementById('program-form');
-        const submitButton = document.getElementById('submit-button');
+        const anggaranAwalError = document.createElement('p');
+        anggaranAwalError.classList.add('text-red-500', 'text-sm', 'mt-1', 'hidden');
+        anggaranAwalField.parentNode.appendChild(anggaranAwalError);
 
-        // Fungsi untuk mengecek apakah anggaran valid
         function checkAnggaran() {
-            const anggaran = parseFloat(anggaranField.value);
-            const anggaranAwal = parseFloat(anggaranAwalField.value);
+            const anggaran = parseFloat(anggaranField.value) || 0;
+            const anggaranAwal = parseFloat(anggaranAwalField.value) || 0;
 
             if (anggaran > anggaranAwal) {
                 anggaranError.classList.remove('hidden');
-                submitButton.disabled = true; // Menonaktifkan tombol submit
             } else {
                 anggaranError.classList.add('hidden');
-                submitButton.disabled = false; // Mengaktifkan tombol submit
+            }
+
+            if (anggaranAwal < anggaran) {
+                anggaranAwalError.textContent = 'Anggaran awal tidak boleh lebih kecil dari anggaran.';
+                anggaranAwalError.classList.remove('hidden');
+            } else {
+                anggaranAwalError.classList.add('hidden');
             }
         }
 
-        // Menambahkan event listener saat nilai anggaran berubah
         anggaranField.addEventListener('input', checkAnggaran);
-
-        // Panggil checkAnggaran sekali untuk validasi awal
+        anggaranAwalField.addEventListener('input', checkAnggaran);
         checkAnggaran();
     </script>
+
 </x-app-layout>

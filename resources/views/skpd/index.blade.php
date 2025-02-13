@@ -47,7 +47,7 @@
                                         <td class="px-4 py-2">Rp
                                             {{ number_format($skpd->total_realisasi, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($skpd->total_anggaran, 0, ',', '.') }}</td>
+                                            {{ number_format($skpd->anggaran, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2">{{ $skpd->created_at }}</td>
                                         <td class="px-4 py-2 text-center">
                                             <!-- Tombol Show (ini tetap bisa diakses oleh semua role) -->

@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 
 use App\Models\Bidang;
 use App\Models\Kegiatan;
@@ -33,7 +34,7 @@ class KegiatanController extends Controller
 
                     // Menghitung total realisasi untuk masing-masing kegiatan berdasarkan SubKegiatan
                     $kegiatan->total_realisasi = SubKegiatan::where('kegiatan_id', $kegiatan->id)
-                        ->sum('anggaran'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
+                        ->sum('anggaran_awal'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
     
                     return $kegiatan;
                 });
@@ -53,7 +54,7 @@ class KegiatanController extends Controller
 
                     // Menghitung total realisasi untuk masing-masing kegiatan berdasarkan SubKegiatan
                     $kegiatan->total_realisasi = SubKegiatan::where('kegiatan_id', $kegiatan->id)
-                        ->sum('anggaran'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
+                        ->sum('anggaran_awal'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
     
                     return $kegiatan;
                 });
@@ -115,45 +116,69 @@ class KegiatanController extends Controller
         return view('kegiatan.edit', compact('kegiatan', 'programs', 'bidangs'));
     }
 
-    public function update(KegiatanRequest $request, Kegiatan $kegiatan)
+    public function update(Request $request, Kegiatan $kegiatan)
     {
+        $request->validate([
+            'program_id' => 'required|exists:programs,id',
+            'bidang_id' => 'required|exists:bidangs,id',
+            'nama_kegiatan' => 'required|string|max:255',
+            'anggaran_awal' => 'required|numeric|min:0',
+            'anggaran' => 'required|numeric|min:0',
+        ]);
+
         DB::beginTransaction();
         try {
-            $program = $kegiatan->program;
+            // Hitung selisih anggaran
+            $selisihAnggaranAwal = $request->anggaran_awal - $kegiatan->anggaran_awal;
             $selisihAnggaran = $request->anggaran - $kegiatan->anggaran;
 
-            // Validasi anggaran yang lebih besar dari anggaran awal
-            if ($request->anggaran > $kegiatan->anggaran_awal) {
-                return redirect()->back()->withErrors(['anggaran' => 'Anggaran tidak boleh lebih besar dari anggaran awal.'])->withInput();
+            // Ambil program terkait
+            $program = $kegiatan->program;
+
+            // Jika anggaran_awal bertambah, kurangi dari program
+            if ($selisihAnggaranAwal > 0) {
+                $program->anggaran -= $selisihAnggaranAwal;
+            } elseif ($selisihAnggaranAwal < 0) {
+                $program->anggaran += abs($selisihAnggaranAwal);
             }
 
-            // Jika anggaran baru lebih kecil, tambahkan kembali anggaran ke program
-            if ($selisihAnggaran < 0) {
-                $program->anggaran += abs($selisihAnggaran);
-            } else {
+            // Jika anggaran bertambah, kurangi dari program
+            if ($selisihAnggaran > 0) {
                 $program->anggaran -= $selisihAnggaran;
+            } elseif ($selisihAnggaran < 0) {
+                $program->anggaran += abs($selisihAnggaran);
             }
+
+            // Validasi apakah program memiliki cukup anggaran
+            if ($program->anggaran < 0) {
+                return redirect()->back()
+                    ->withErrors(['anggaran' => 'Anggaran program tidak mencukupi.'])
+                    ->withInput();
+            }
+
             $program->save();
 
-            // Update data kegiatan
-            $kegiatan->update($request->only([
-                'program_id',
-                'bidang_id',
-                'nama_kegiatan',
-                'anggaran',
-            ]));
+            // **Update kegiatan**
+            $kegiatan->update([
+                'program_id' => $request->program_id,
+                'bidang_id' => $request->bidang_id,
+                'nama_kegiatan' => $request->nama_kegiatan,
+                'anggaran_awal' => $request->anggaran_awal,
+                'anggaran' => $request->anggaran,
+            ]);
 
             DB::commit();
-            return redirect()->route('kegiatan.index')->with('message', [
-                'type' => 'success',
-                'content' => 'Kegiatan berhasil diperbarui dan anggaran program diperbarui.',
-            ]);
+            return redirect()->route('kegiatan.index')->with('success', 'Kegiatan berhasil diperbarui.');
         } catch (\Throwable $e) {
             DB::rollBack();
-            Log::error('Error saat memperbarui kegiatan: ' . $e->getMessage(), ['exception' => $e]);
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
+
+
+
+
+
 
     public function destroy(Kegiatan $kegiatan)
     {

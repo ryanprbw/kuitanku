@@ -33,7 +33,7 @@ class SubKegiatanController extends Controller
                 ->paginate(10)
                 ->through(function ($subKegiatan) {
                     // Menghitung anggaran realisasi untuk setiap sub kegiatan
-                    $anggaranRealisasi = $subKegiatan->kodeRekenings()->sum('anggaran');
+                    $anggaranRealisasi = $subKegiatan->kodeRekenings()->sum('anggaran_awal');
 
                     // Menghitung sisa anggaran sub kegiatan
                     $subKegiatan->sisa_anggaran = $subKegiatan->anggaran_awal - $anggaranRealisasi;
@@ -113,6 +113,7 @@ class SubKegiatanController extends Controller
             'kegiatan_id' => 'required|exists:kegiatans,id',
             'nama_sub_kegiatan' => 'required|string|max:255',
             'anggaran' => 'required|numeric|min:0',
+            'anggaran_awal' => 'required|numeric|min:0',
             'bidang_id' => 'required|exists:bidangs,id',
         ]);
 
@@ -120,7 +121,6 @@ class SubKegiatanController extends Controller
         try {
             $kegiatan = Kegiatan::findOrFail($request->kegiatan_id);
 
-            // Validasi anggaran kegiatan mencukupi
             if ($kegiatan->anggaran < $request->anggaran) {
                 return redirect()->back()->withErrors(['anggaran' => 'Anggaran Kegiatan tidak mencukupi.'])->withInput();
             }
@@ -129,20 +129,23 @@ class SubKegiatanController extends Controller
             $kegiatan->anggaran -= $request->anggaran;
             $kegiatan->save();
 
-            // Simpan SubKegiatan dengan bidang_id
-            SubKegiatan::create($request->all());
+            // Simpan SubKegiatan
+            SubKegiatan::create([
+                'kegiatan_id' => $request->kegiatan_id,
+                'nama_sub_kegiatan' => $request->nama_sub_kegiatan,
+                'anggaran' => $request->anggaran,
+                'anggaran_awal' => $request->anggaran_awal,
+                'bidang_id' => $request->bidang_id,
+            ]);
 
             DB::commit();
-
-            return redirect()->route('sub_kegiatan.index')->with('message', [
-                'type' => 'success',
-                'content' => 'Sub Kegiatan berhasil ditambahkan.',
-            ]);
+            return redirect()->route('sub_kegiatan.index')->with('message', 'Sub Kegiatan berhasil ditambahkan.');
         } catch (\Throwable $e) {
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
+
 
 
 
@@ -177,45 +180,57 @@ class SubKegiatanController extends Controller
      */
     public function update(Request $request, SubKegiatan $subKegiatan)
     {
+        // Validasi input dari request
         $request->validate([
             'kegiatan_id' => 'required|exists:kegiatans,id',
             'bidang_id' => 'required|exists:bidangs,id',
             'nama_sub_kegiatan' => 'required|string|max:255',
             'anggaran' => 'required|numeric|min:0',
+            'anggaran_awal' => 'required|numeric|min:0',
         ]);
-
 
         DB::beginTransaction();
         try {
+            // Ambil kegiatan yang terkait dengan sub-kegiatan
             $kegiatan = $subKegiatan->kegiatan;
 
-            // Hitung selisih anggaran
-            $selisihAnggaran = $subKegiatan->anggaran - $request->anggaran;
+            // Hitung perbedaan antara anggaran_awal lama dan baru
+            $selisihAnggaranAwal = $request->anggaran_awal - $subKegiatan->anggaran_awal;
 
-            // Update anggaran Kegiatan
-            $kegiatan->anggaran += $selisihAnggaran;
+            // Jika anggaran_awal bertambah, kurangi anggaran kegiatan
+            if ($selisihAnggaranAwal > 0) {
+                $kegiatan->anggaran -= $selisihAnggaranAwal;
+            }
+            // Jika anggaran_awal berkurang, tambahkan anggaran kegiatan
+            elseif ($selisihAnggaranAwal < 0) {
+                $kegiatan->anggaran += abs($selisihAnggaranAwal);
+            }
 
-            // Validasi anggaran kegiatan mencukupi
+            // Validasi jika anggaran kegiatan menjadi negatif
             if ($kegiatan->anggaran < 0) {
                 return redirect()->back()->withErrors(['anggaran' => 'Anggaran Kegiatan tidak mencukupi.'])->withInput();
             }
 
+            // Simpan perubahan anggaran kegiatan
             $kegiatan->save();
 
-            // Update SubKegiatan dengan bidang_id
-            $subKegiatan->update($request->all());
+            // Update data SubKegiatan dengan request yang baru
+            $subKegiatan->fill($request->all());
+            $subKegiatan->save();
 
+            // Commit perubahan ke database
             DB::commit();
 
-            return redirect()->route('sub_kegiatan.index')->with('message', [
-                'type' => 'success',
-                'content' => 'Sub Kegiatan berhasil diperbarui.',
-            ]);
+            // Redirect ke halaman index dengan pesan sukses
+            return redirect()->route('sub_kegiatan.index')->with('message', 'Sub Kegiatan berhasil diperbarui.');
         } catch (\Throwable $e) {
+            // Rollback jika ada kesalahan
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
+
+
 
 
 
@@ -235,20 +250,17 @@ class SubKegiatanController extends Controller
             $kegiatan->anggaran += $subKegiatan->anggaran;
             $kegiatan->save();
 
-            // Soft delete SubKegiatan
+            // Hapus SubKegiatan
             $subKegiatan->delete();
 
             DB::commit();
-
-            return redirect()->route('sub_kegiatan.index')->with('message', [
-                'type' => 'success',
-                'content' => 'Sub Kegiatan berhasil dihapus.',
-            ]);
+            return redirect()->route('sub_kegiatan.index')->with('message', 'Sub Kegiatan berhasil dihapus.');
         } catch (\Throwable $e) {
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus Sub Kegiatan.']);
         }
     }
+
 
 
 

@@ -11,63 +11,70 @@ class SubKegiatan extends Model
 {
     use HasFactory, SoftDeletes;
 
-    // Field yang dapat diisi
+    /**
+     * Field yang dapat diisi (mass assignment)
+     */
     protected $fillable = [
-        'kegiatan_id',        // Foreign key ke tabel kegiatan
-        'nama_sub_kegiatan',  // Nama sub kegiatan
-        'anggaran',           // Anggaran sub kegiatan
-        'anggaran_awal',           // Anggaran awal sub kegiatan
-        'bidang_id',           // Anggaran sub kegiatan
-    ];
-
-    // Konversi properti anggaran menjadi float
-    protected $casts = [
-        'anggaran' => 'float',
+        'kegiatan_id',         // Foreign key ke tabel kegiatan
+        'nama_sub_kegiatan',   // Nama sub kegiatan
+        'anggaran',            // Anggaran sub kegiatan
+        'anggaran_awal',       // Anggaran awal sub kegiatan
+        'bidang_id',           // Foreign key ke tabel bidang
     ];
 
     /**
-     * Relasi dengan Kegiatan.
-     *
-     * Sub Kegiatan terkait dengan satu Kegiatan.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Konversi tipe data untuk atribut tertentu
+     */
+    protected $casts = [
+        'anggaran' => 'float',
+        'anggaran_awal' => 'float',
+    ];
+
+    /**
+     * Relasi dengan Kegiatan (SubKegiatan milik satu Kegiatan)
      */
     public function kegiatan()
     {
         return $this->belongsTo(Kegiatan::class, 'kegiatan_id', 'id');
     }
-    public function rincianBelanjaUmum()
-    {
-        return $this->hasMany(RincianBelanjaUmum::class);
-    }
+
     /**
-     * Relasi dengan KodeRekening.
-     *
-     * Sub Kegiatan terhubung ke satu Kode Rekening.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * Relasi dengan Bidang (SubKegiatan milik satu Bidang)
      */
-    public function kodeRekening()
-    {
-        return $this->belongsTo(KodeRekening::class, 'kode_rekening_id');
-    }
-    public function kodeRekenings()
-    {
-        return $this->hasMany(KodeRekening::class, 'sub_kegiatan_id');
-    }
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
+    /**
+     * Relasi dengan KodeRekening (jika satu subkegiatan memiliki banyak kode rekening)
+     */
+    public function kodeRekenings()
+    {
+        return $this->hasMany(KodeRekening::class, 'sub_kegiatan_id');
+    }
 
+    /**
+     * Relasi dengan RincianBelanjaUmum
+     */
+    public function rincianBelanjaUmum()
+    {
+        return $this->hasMany(RincianBelanjaUmum::class);
+    }
+
+    /**
+     * Menghitung sisa anggaran (anggaran awal - anggaran yang telah digunakan)
+     */
+    public function getSisaAnggaranAttribute()
+    {
+        return $this->anggaran_awal - $this->anggaran;
+    }
 
     /**
      * Mengurangi anggaran pada SubKegiatan.
      *
      * @param float $jumlah Jumlah anggaran yang akan dikurangi.
      * @throws \Exception Jika jumlah tidak valid atau anggaran tidak mencukupi.
-     * @return void
      */
     public function kurangiAnggaran($jumlah)
     {
@@ -86,6 +93,33 @@ class SubKegiatan extends Model
 
         Log::info("Anggaran sub kegiatan '{$this->nama_sub_kegiatan}' berhasil dikurangi sebesar: {$jumlah}. Sisa anggaran: {$this->anggaran}");
     }
+
+    /**
+     * Menambah anggaran pada SubKegiatan.
+     *
+     * @param float $jumlah Jumlah anggaran yang akan ditambahkan.
+     * @throws \Exception Jika jumlah tidak valid.
+     */
+    public function tambahAnggaran($jumlah)
+    {
+        if (!is_numeric($jumlah) || $jumlah <= 0) {
+            Log::error("Penambahan anggaran gagal: Jumlah tidak valid ({$jumlah}).");
+            throw new \Exception('Jumlah penambahan anggaran harus angka positif dan lebih besar dari 0.');
+        }
+
+        $this->anggaran += $jumlah;
+        $this->save();
+
+        Log::info("Anggaran sub kegiatan '{$this->nama_sub_kegiatan}' berhasil ditambah sebesar: {$jumlah}. Total anggaran: {$this->anggaran}");
+    }
+
+    /**
+     * Scope untuk filter berdasarkan bidang tertentu.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param int $bidangId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
     public function scopeByBidang($query, $bidangId)
     {
         return $query->where('bidang_id', $bidangId);

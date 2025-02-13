@@ -14,55 +14,37 @@ class ProgramController extends Controller
 {
     public function index()
     {
-        // Mendapatkan data user yang login
         $user = auth()->user();
 
-        // Menghitung total anggaran sesuai dengan role user
         if ($user->role === 'superadmin') {
-            // Untuk superadmin, total anggaran dihitung dari seluruh Program
             $totalAnggaran = Program::sum('anggaran');
-
-            // Total realisasi untuk superadmin, dihitung dari seluruh Kegiatan
             $totalRealisasi = Kegiatan::sum('anggaran');
 
-            // Menampilkan semua data Program
             $programs = Program::with('skpd', 'bidang')
                 ->paginate(10)
                 ->through(function ($program) {
-                    // Menghitung sisa anggaran per program
                     $program->sisa_anggaran = $program->anggaran_awal - $program->anggaran;
-
-                    // Menghitung total realisasi untuk masing-masing program
-                    $program->total_realisasi = Kegiatan::where('program_id', $program->id)->sum('anggaran');
-
+                    $program->total_realisasi = $program->kegiatan()->sum('anggaran_awal'); // Ambil langsung dari relasi
                     return $program;
                 });
 
         } else {
-            // Untuk pengguna selain superadmin, total anggaran dihitung hanya berdasarkan bidang user
             $totalAnggaran = Program::where('bidang_id', $user->bidang_id)->sum('anggaran');
-
-            // Total realisasi berdasarkan bidang user
             $totalRealisasi = Kegiatan::where('bidang_id', $user->bidang_id)->sum('anggaran');
 
-            // Menampilkan data Program sesuai dengan bidang yang dimiliki user
             $programs = Program::where('bidang_id', $user->bidang_id)
                 ->with('skpd', 'bidang')
                 ->paginate(10)
                 ->through(function ($program) {
-                    // Menghitung sisa anggaran per program
                     $program->sisa_anggaran = $program->anggaran_awal - $program->anggaran;
-
-                    // Menghitung total realisasi untuk masing-masing program
-                    $program->total_realisasi = Kegiatan::where('program_id', $program->id)->sum('anggaran');
-
+                    $program->total_realisasi = $program->kegiatan()->sum('anggaran_awal');
                     return $program;
                 });
         }
 
-        // Mengirimkan data ke view
         return view('program.index', compact('programs', 'totalAnggaran', 'totalRealisasi'));
     }
+
 
 
 
@@ -71,14 +53,12 @@ class ProgramController extends Controller
         return view('program.show', compact('program'));
     }
 
-
     public function create()
     {
-
-
-        $skpds = Skpd::all();
-        $bidangs = Bidang::all();
-        return view('program.create', compact('skpds', 'bidangs'));
+        return view('program.create', [
+            'skpds' => Skpd::all(),
+            'bidangs' => Bidang::all(),
+        ]);
     }
 
     public function store(ProgramRequest $request)
@@ -87,24 +67,15 @@ class ProgramController extends Controller
         try {
             $skpd = Skpd::findOrFail($request->skpd_id);
 
-            // Periksa apakah anggaran lebih besar dari anggaran awal
             if ($request->anggaran > $request->anggaran_awal) {
                 return redirect()->back()
                     ->withErrors(['anggaran' => 'Anggaran tidak boleh lebih besar dari anggaran awal.'])
                     ->withInput();
             }
 
-            // Kurangi anggaran SKPD
             $skpd->kurangiAnggaran($request->anggaran);
 
-            // Simpan program dengan anggaran_awal
-            Program::create([
-                'nama' => $request->nama,
-                'skpd_id' => $request->skpd_id,
-                'bidang_id' => $request->bidang_id,
-                'anggaran_awal' => $request->anggaran_awal,
-                'anggaran' => $request->anggaran,
-            ]);
+            $program = Program::create($request->validated());
 
             DB::commit();
             return redirect()->route('program.index')->with('message', [
@@ -124,43 +95,44 @@ class ProgramController extends Controller
 
     public function edit(Program $program)
     {
-        $skpds = Skpd::all();
-        $bidangs = Bidang::all();
-        return view('program.edit', compact('program', 'skpds', 'bidangs'));
+        return view('program.edit', [
+            'program' => $program,
+            'skpds' => Skpd::all(),
+            'bidangs' => Bidang::all(),
+        ]);
     }
 
     public function update(ProgramRequest $request, Program $program)
     {
         DB::beginTransaction();
         try {
-            // Dapatkan SKPD yang terhubung dengan program
             $skpd = $program->skpd;
-
-            // Hitung selisih anggaran
             $selisihAnggaran = $request->anggaran - $program->anggaran;
+            $selisihAnggaranAwal = $request->anggaran_awal - $program->anggaran_awal; // Cek perubahan anggaran awal
 
-            // Periksa apakah anggaran lebih besar dari anggaran_awal
-            if ($request->anggaran > $program->anggaran_awal) {
+            if ($request->anggaran > $request->anggaran_awal) {
                 return redirect()->back()
                     ->withErrors(['anggaran' => 'Anggaran tidak boleh lebih besar dari anggaran awal.'])
                     ->withInput();
             }
 
-            if ($selisihAnggaran < 0) {
-                // Jika anggaran baru lebih kecil, kembalikan anggaran ke SKPD
-                $skpd->tambahAnggaran(abs($selisihAnggaran));
-            } else {
-                // Jika anggaran baru lebih besar, kurangi anggaran dari SKPD
-                $skpd->kurangiAnggaran($selisihAnggaran);
+            // Jika anggaran awal bertambah, kurangi dari anggaran SKPD
+            if ($selisihAnggaranAwal > 0) {
+                $skpd->kurangiAnggaran($selisihAnggaranAwal);
+            }
+            // Jika anggaran awal berkurang, tambahkan kembali ke anggaran SKPD
+            elseif ($selisihAnggaranAwal < 0) {
+                $skpd->tambahAnggaran(abs($selisihAnggaranAwal));
             }
 
-            // Update program hanya dengan data yang diizinkan
-            $program->update($request->only([
-                'nama',
-                'skpd_id',
-                'bidang_id',
-                'anggaran'
-            ]));
+            // Update anggaran program
+            if ($selisihAnggaran < 0) {
+                $skpd->tambahAnggaran(abs($selisihAnggaran)); // Jika anggaran dikurangi, tambahkan kembali ke SKPD
+            } else {
+                $skpd->kurangiAnggaran($selisihAnggaran); // Jika anggaran bertambah, kurangi dari SKPD
+            }
+
+            $program->update($request->only(['nama', 'skpd_id', 'bidang_id', 'anggaran', 'anggaran_awal']));
 
             DB::commit();
             return redirect()->route('program.index')->with('message', [
@@ -182,8 +154,11 @@ class ProgramController extends Controller
     {
         DB::beginTransaction();
         try {
-            // Hapus semua kegiatan terkait secara permanen
-            $program->kegiatan()->forceDelete();
+            // **Hapus semua kegiatan dan sub-kegiatan sebelum menghapus program**
+            foreach ($program->kegiatan as $kegiatan) {
+                $kegiatan->subKegiatan()->forceDelete(); // Hapus sub kegiatan
+                $kegiatan->forceDelete(); // Hapus kegiatan
+            }
 
             // Kembalikan anggaran ke SKPD sebelum menghapus program
             $skpd = $program->skpd;
@@ -203,5 +178,4 @@ class ProgramController extends Controller
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus program.']);
         }
     }
-
 }

@@ -2,10 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Container\Attributes\DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class Kegiatan extends Model
@@ -33,14 +33,17 @@ class Kegiatan extends Model
     {
         return $this->belongsTo(Program::class, 'program_id', 'id');
     }
+
+    /**
+     * Relasi dengan Bidang.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
-    public function getSisaAnggaranAttribute()
-    {
-        return $this->anggaran_awal - $this->anggaran;
-    }
+
     /**
      * Relasi dengan SubKegiatan.
      *
@@ -52,11 +55,7 @@ class Kegiatan extends Model
     }
 
     /**
-     * Scope untuk kegiatan berdasarkan program tertentu.
-     *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param int $programId
-     * @return \Illuminate\Database\Eloquent\Builder
+     * Scope untuk mencari kegiatan berdasarkan program tertentu.
      */
     public function scopeByProgram($query, $programId)
     {
@@ -64,35 +63,47 @@ class Kegiatan extends Model
     }
 
     /**
-     * Mengurangi anggaran pada Kegiatan.
-     *
-     * @param float $jumlah Jumlah anggaran yang akan dikurangi.
-     * @throws \Exception Jika jumlah tidak valid atau anggaran tidak mencukupi.
-     * @return void
+     * Scope untuk mencari kegiatan berdasarkan bidang tertentu.
      */
-
-    public function kurangiAnggaran($jumlah)
+    public function scopeByBidang($query, $bidangId)
     {
-        DB::transaction(function () use ($jumlah) {
-            if ($jumlah <= 0) {
-                throw new \Exception('Jumlah pengurangan anggaran harus lebih besar dari 0.');
-            }
-
-            if ($this->anggaran < $jumlah) {
-                throw new \Exception('Anggaran tidak mencukupi.');
-            }
-
-            $this->anggaran -= $jumlah;
-            $this->save();
-
-            Log::info("Anggaran kegiatan dikurangi: {$jumlah}. Sisa anggaran: {$this->anggaran}");
-        });
+        return $query->where('bidang_id', $bidangId);
     }
 
     /**
-     * Menghitung jumlah SubKegiatan.
+     * Menghitung sisa anggaran kegiatan.
      *
-     * @return int Jumlah subkegiatan.
+     * @return float
+     */
+    public function getSisaAnggaranAttribute()
+    {
+        return max(0, $this->anggaran_awal - $this->anggaran);
+    }
+
+    /**
+     * Mengurangi anggaran kegiatan.
+     *
+     * @param float $jumlah
+     * @throws \Exception Jika jumlah tidak valid atau anggaran tidak mencukupi.
+     */
+    public function kurangiAnggaran($jumlah)
+    {
+        if ($jumlah <= 0) {
+            throw new \Exception('Jumlah pengurangan anggaran harus lebih besar dari 0.');
+        }
+
+        if ($this->anggaran < $jumlah) {
+            throw new \Exception('Anggaran tidak mencukupi.');
+        }
+
+        $this->decrement('anggaran', $jumlah);
+        Log::info("Anggaran kegiatan dikurangi: {$jumlah}. Sisa anggaran: {$this->anggaran}");
+    }
+
+    /**
+     * Menghitung jumlah sub-kegiatan dalam kegiatan ini.
+     *
+     * @return int
      */
     public function jumlahSubKegiatan()
     {
@@ -100,17 +111,12 @@ class Kegiatan extends Model
     }
 
     /**
-     * Menghitung total anggaran dari SubKegiatan.
+     * Menghitung total anggaran dari semua sub-kegiatan.
      *
-     * @return float Total anggaran semua subkegiatan.
+     * @return float
      */
     public function totalAnggaranSubKegiatan()
     {
-        return $this->subKegiatan()->sum('anggaran');
+        return $this->subKegiatan()->sum('anggaran') ?? 0;
     }
-    public function scopeByBidang($query, $bidangId)
-    {
-        return $query->where('bidang_id', $bidangId);
-    }
-
 }

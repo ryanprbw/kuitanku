@@ -15,7 +15,9 @@
 
                         <div>
                             <label for="nama_skpd" class="block text-sm font-medium text-gray-700">Nama SKPD</label>
-                            <input type="text" name="nama_skpd" id="nama_skpd" value="{{ old('nama_skpd', $skpd->nama_skpd) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <input type="text" name="nama_skpd" id="nama_skpd"
+                                value="{{ old('nama_skpd', $skpd->nama_skpd) }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             @error('nama_skpd')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -23,14 +25,28 @@
 
                         <div>
                             <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran</label>
-                            <input type="number" name="anggaran" id="anggaran" value="{{ old('anggaran', $skpd->anggaran) }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            <input type="number" name="anggaran" id="anggaran"
+                                value="{{ old('anggaran', $skpd->anggaran) }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
                             @error('anggaran')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
+                        <div>
+                            <label for="anggaran_awal" class="block text-sm font-medium text-gray-700">Anggaran
+                                Awal</label>
+                            <input type="number" name="anggaran_awal" id="anggaran_awal"
+                                value="{{ old('anggaran_awal', $skpd->anggaran_awal) }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:ring-blue-500 focus:border-blue-500">
+                            @error('anggaran_awal')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
 
                         <div class="flex justify-end">
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
                                 Update
                             </button>
                         </div>

@@ -31,7 +31,15 @@ class KodeRekening extends Model
      */
     public function subKegiatan()
     {
-        return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id');
+        return $this->belongsTo(SubKegiatan::class, 'sub_kegiatan_id', 'id');
+    }
+    public function rincianBelanjaUmum()
+    {
+        return $this->hasMany(RincianBelanjaUmum::class, 'kode_rekening_id', 'id');
+    }
+    public function rincianBelanjaSppd()
+    {
+        return $this->hasMany(RincianBelanjaSppd::class, 'kode_rekening_id', 'id');
     }
 
     /**

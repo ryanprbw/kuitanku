@@ -32,7 +32,7 @@
                                     <th class="px-4 py-2 text-left text-gray-700">Nama Kode Rekening</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Sub Kegiatan</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
-                                    <th class="px-4 py-2 text-left text-gray-700">Anggaran</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Anggaran Awal</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Anggaran Realisasi</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Sisa Anggaran</th>
                                     <th class="px-4 py-2 text-center text-gray-700">Aksi</th>
@@ -46,7 +46,11 @@
                                         </td>
                                         <td class="px-4 py-2">{{ $kodeRekening->bidang->nama_bidang ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($kodeRekening->anggaran, 0, ',', '.') }}</td>
+                                            {{ number_format($kodeRekening->anggaran_awal, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2">Rp
+                                            {{ number_format($kodeRekening->anggaran_realisasi, 0, ',', '.') }}</td>
+                                        <td class="px-4 py-2">Rp
+                                            {{ number_format($kodeRekening->sisa_anggaran, 0, ',', '.') }}</td>
                                         <td class="px-4 py-2 text-center">
                                             @if (Auth::user()->role !== 'bidang')
                                                 <a href="{{ route('kode_rekening.show', $kodeRekening->id) }}"
@@ -65,7 +69,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="4" class="px-4 py-2 text-center text-gray-500">Tidak ada kode
+                                        <td colspan="7" class="px-4 py-2 text-center text-gray-500">Tidak ada kode
                                             rekening yang terdaftar.</td>
                                     </tr>
                                 @endforelse

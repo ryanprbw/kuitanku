@@ -13,11 +13,14 @@
                         @csrf
 
                         <div>
-                            <label for="sub_kegiatan_id" class="block text-sm font-medium text-gray-700">Sub Kegiatan</label>
-                            <select name="sub_kegiatan_id" id="sub_kegiatan_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label for="sub_kegiatan_id" class="block text-sm font-medium text-gray-700">Sub
+                                Kegiatan</label>
+                            <select name="sub_kegiatan_id" id="sub_kegiatan_id" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">-- Pilih Sub Kegiatan --</option>
                                 @foreach ($subKegiatans as $subKegiatan)
-                                    <option value="{{ $subKegiatan->id }}" data-anggaran="{{ $subKegiatan->anggaran }}" {{ old('sub_kegiatan_id') == $subKegiatan->id ? 'selected' : '' }}>
+                                    <option value="{{ $subKegiatan->id }}" data-anggaran="{{ $subKegiatan->anggaran }}"
+                                        {{ old('sub_kegiatan_id') == $subKegiatan->id ? 'selected' : '' }}>
                                         {{ $subKegiatan->nama_sub_kegiatan }}
                                     </option>
                                 @endforeach
@@ -30,10 +33,12 @@
 
                         <div>
                             <label for="bidang_id" class="block text-sm font-medium text-gray-700">Bidang</label>
-                            <select name="bidang_id" id="bidang_id" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <select name="bidang_id" id="bidang_id" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                                 <option value="">-- Pilih Bidang --</option>
                                 @foreach ($bidangs as $bidang)
-                                    <option value="{{ $bidang->id }}" {{ old('bidang_id') == $bidang->id ? 'selected' : '' }}>
+                                    <option value="{{ $bidang->id }}"
+                                        {{ old('bidang_id') == $bidang->id ? 'selected' : '' }}>
                                         {{ $bidang->nama_bidang }}
                                     </option>
                                 @endforeach
@@ -44,23 +49,38 @@
                         </div>
 
                         <div>
-                            <label for="nama_kode_rekening" class="block text-sm font-medium text-gray-700">Nama Kode Rekening</label>
-                            <input type="text" name="nama_kode_rekening" id="nama_kode_rekening" value="{{ old('nama_kode_rekening') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <label for="nama_kode_rekening" class="block text-sm font-medium text-gray-700">Nama Kode
+                                Rekening</label>
+                            <input type="text" name="nama_kode_rekening" id="nama_kode_rekening"
+                                value="{{ old('nama_kode_rekening') }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             @error('nama_kode_rekening')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div>
+                            <label for="anggaran_awal" class="block text-sm font-medium text-gray-700">Anggaran
+                                Awal</label>
+                            <input type="number" name="anggaran_awal" id="anggaran_awal"
+                                value="{{ old('anggaran_awal') }}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            @error('anggaran_awal')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div>
                             <label for="anggaran" class="block text-sm font-medium text-gray-700">Anggaran</label>
-                            <input type="number" name="anggaran" id="anggaran" value="{{ old('anggaran') }}" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+                            <input type="number" name="anggaran" id="anggaran" value="{{ old('anggaran') }}" required
+                                readonly class="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
                             @error('anggaran')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
 
                         <div class="flex justify-end">
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Simpan</button>
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Simpan</button>
                         </div>
                     </form>
                 </div>
@@ -73,16 +93,24 @@
             const subKegiatanDropdown = document.getElementById('sub_kegiatan_id');
             const sisaAnggaranLabel = document.getElementById('sisa-anggaran-sub-kegiatan');
 
-            subKegiatanDropdown.addEventListener('change', function () {
+            subKegiatanDropdown.addEventListener('change', function() {
                 const selectedOption = this.options[this.selectedIndex];
                 const anggaran = selectedOption.getAttribute('data-anggaran');
 
                 if (anggaran) {
-                    sisaAnggaranLabel.textContent = `Sisa Anggaran: Rp ${parseFloat(anggaran).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                    sisaAnggaranLabel.textContent =
+                        `Sisa Anggaran: Rp ${parseFloat(anggaran).toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 } else {
                     sisaAnggaranLabel.textContent = '';
                 }
             });
         });
     </script>
+    <script>
+        document.getElementById('anggaran_awal').addEventListener('input', function() {
+            let anggaranAwal = parseFloat(this.value) || 0; // Convert to number, default to 0 if empty
+            document.getElementById('anggaran').value = anggaranAwal;
+        });
+    </script>
+
 </x-app-layout>

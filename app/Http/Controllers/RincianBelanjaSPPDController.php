@@ -81,19 +81,26 @@ class RincianBelanjaSppdController extends Controller
         $data['bidang_id'] = auth()->user()->bidang_id;
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
+        // Mencari Kode Rekening yang terkait
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
 
+        // Mengecek apakah anggaran mencukupi
         if ($kodeRekening->anggaran < $request->sebesar) {
             return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
         }
 
+        // Kurangi anggaran pada Kode Rekening
         $kodeRekening->anggaran -= $request->sebesar;
+
+        // Simpan perubahan anggaran
         $kodeRekening->save();
 
+        // Menyimpan rincian belanja
         RincianBelanjaSppd::create($data);
 
         return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil ditambahkan.');
     }
+
 
     public function show($id)
     {
