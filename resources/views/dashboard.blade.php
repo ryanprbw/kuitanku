@@ -14,9 +14,9 @@
                         <li>Peraturan Pemerintah Nomor 12 Tahun 2019 tentang Pengelolaan Keuangan Daerah.</li>
                         <li>Peraturan Menteri Dalam Negeri Nomor 77 Tahun 2020 tentang Pedoman Teknis Pengelolaan
                             Keuangan Daerah.</li>
-                        <li>Peraturan Daerah Kabupaten Tapin Nomor 10 Tahun 2022 tentang Anggaran Pendapatan dan Belanja
+                        <li>Peraturan Daerah Kabupaten Tapin Nomor 13 Tahun 2024 tentang Anggaran Pendapatan dan Belanja
                             Daerah Tahun Anggaran 2025 Tanggal 30 Desember 2024.</li>
-                        <li>Peraturan Bupati Tapin Nomor 44 Tahun 2022 tentang Penjabaran Anggaran Pendapatan dan
+                        <li>Peraturan Bupati Tapin Nomor 30 Tahun 2024 tentang Penjabaran Anggaran Pendapatan dan
                             Belanja Daerah Tahun Anggaran 2025 Tanggal 30 Desember 2024.</li>
                         <li>Peraturan Bupati Nomor 05 Tahun 2014 tentang Pedoman Penyusunan Standar Operasional Prosedur
                             Penyelenggaraan Pemerintah di Lingkungan Kabupaten Tapin.</li>
