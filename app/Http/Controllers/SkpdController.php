@@ -5,63 +5,57 @@ namespace App\Http\Controllers;
 use App\Models\Program;
 use App\Models\Skpd;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SkpdController extends Controller
 {
     // Menampilkan daftar SKPD
     public function index()
     {
-        $skpds = Skpd::with(['programs']) // Mengambil relasi programs
-            ->paginate(10)
-            ->through(function ($skpd) {
-                // Hitung total realisasi anggaran yang sudah digunakan dalam program
-                $totalRealisasi = $skpd->programs->sum('anggaran_awal'); // anggaran yang sudah digunakan oleh programs
-    
-                // Tentukan total anggaran yang ada pada SKPD (menggunakan anggaran_awal)
+        $skpds = Skpd::withCount([
+            'programs as total_realisasi' => function ($query) {
+                $query->select(DB::raw('SUM(anggaran_awal)'));
+            }
+        ])
+            ->paginate(10);
+
+        // Gunakan setCollection() agar tetap berupa paginator
+        $skpds->setCollection(
+            $skpds->getCollection()->map(function ($skpd) {
                 $skpd->total_anggaran = $skpd->anggaran_awal;
-
-                // Tentukan total realisasi anggaran
-                $skpd->total_realisasi = $totalRealisasi;
-
-                // Tentukan sisa anggaran
-                $skpd->sisa_anggaran = $skpd->anggaran_awal - $totalRealisasi;
-
+                $skpd->sisa_anggaran = $skpd->total_anggaran - $skpd->total_realisasi;
                 return $skpd;
-            });
+            })
+        );
 
         return view('skpd.index', compact('skpds'));
     }
-
 
     // Menampilkan form untuk menambah SKPD baru
     public function create()
     {
         return view('skpd.create');
     }
-    public function show(Skpd $skpds)
+
+    // Menampilkan detail SKPD
+    public function show(Skpd $skpd)
     {
-        return view('skpd.show', compact('skpds'));
+        return view('skpd.show', compact('skpd'));
     }
+
     // Menyimpan SKPD baru
     public function store(Request $request)
     {
-        // Validasi input
         $request->validate([
-            'nama_skpd' => 'required|string|max:255', // Pastikan menggunakan nama yang benar
-            'anggaran' => 'required|numeric',
-            'anggaran_awal' => 'required|numeric',
+            'nama_skpd' => 'required|string|max:255',
+            'anggaran' => 'required|numeric|min:0',
+            'anggaran_awal' => 'required|numeric|min:0',
         ]);
 
-        // Simpan data ke dalam database
-        Skpd::create([
-            'nama_skpd' => $request->nama_skpd, // Pastikan mengisi 'nama_skpd'
-            'anggaran' => $request->anggaran,
-            'anggaran_awal' => $request->anggaran_awal,
-        ]);
+        Skpd::create($request->only(['nama_skpd', 'anggaran', 'anggaran_awal']));
 
         return redirect()->route('skpd.index')->with('success', 'SKPD berhasil ditambahkan.');
     }
-
 
     // Menampilkan form untuk mengedit SKPD
     public function edit(Skpd $skpd)
@@ -78,27 +72,27 @@ class SkpdController extends Controller
             'anggaran_awal' => 'required|numeric|min:0',
         ]);
 
-        // Validasi anggaran yang baru
-        if ($request->anggaran < $skpd->anggaran) {
-            return redirect()->back()->withErrors(['anggaran' => 'Anggaran tidak boleh lebih kecil dari anggaran yang ada.'])->withInput();
-        }
-
-        // Update anggaran (tanpa merubah anggaran_awal)
-        $skpd->update([
-            'nama_skpd' => $request->nama_skpd,
-            'anggaran' => $request->anggaran,
-            'anggaran_awal' => $request->anggaran_awal,  // Hanya memperbarui anggaran, bukan anggaran_awal
-        ]);
+        $skpd->update($request->only(['nama_skpd', 'anggaran', 'anggaran_awal']));
 
         return redirect()->route('skpd.index')->with('success', 'SKPD berhasil diperbarui.');
     }
 
-
-
     // Menghapus SKPD
     public function destroy(Skpd $skpd)
     {
-        $skpd->delete();
-        return redirect()->route('skpd.index')->with('success', 'SKPD berhasil dihapus.');
+        DB::beginTransaction();
+        try {
+            // Soft delete semua program terkait
+            $skpd->programs()->delete();
+
+            // Soft delete SKPD
+            $skpd->delete();
+
+            DB::commit();
+            return redirect()->route('skpd.index')->with('success', 'SKPD berhasil dihapus.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus SKPD.']);
+        }
     }
 }

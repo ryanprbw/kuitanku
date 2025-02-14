@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\DB;
 
 class Program extends Model
 {
@@ -18,48 +19,70 @@ class Program extends Model
         'bidang_id'
     ];
 
-    // Relasi dengan tabel Kegiatan
+    protected $casts = [
+        'anggaran' => 'float',
+        'anggaran_awal' => 'float',
+    ];
+
+    // Relasi dengan tabel Kegiatan (hapus duplikasi)
     public function kegiatan()
     {
         return $this->hasMany(Kegiatan::class, 'program_id', 'id');
     }
-    public function kegiatans()
-    {
-        return $this->hasMany(Kegiatan::class, 'program_id', 'id');
-    }
+
+    // Relasi ke SKPD
     public function skpd()
     {
         return $this->belongsTo(Skpd::class, 'skpd_id');
     }
 
+    // Relasi ke Bidang
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
-    // Mengurangi anggaran pada Program
+    /**
+     * Mengurangi anggaran pada Program.
+     *
+     * @param float $jumlah
+     * @return void
+     * @throws \Exception
+     */
     public function kurangiAnggaran($jumlah)
     {
+        if ($jumlah <= 0) {
+            throw new \Exception('Jumlah yang dikurangi harus lebih dari nol.');
+        }
+
         if ($this->anggaran < $jumlah) {
             throw new \Exception('Anggaran tidak mencukupi untuk mengurangi jumlah tersebut.');
         }
 
-        $this->anggaran -= $jumlah;
-        $this->save();
+        DB::transaction(function () use ($jumlah) {
+            $this->updateQuietly([
+                'anggaran' => $this->anggaran - $jumlah
+            ]);
+        });
     }
 
     /**
-     * Tambah anggaran SKPD.
+     * Menambah anggaran pada Program.
      *
      * @param float $jumlah
      * @return void
+     * @throws \Exception
      */
     public function tambahAnggaran($jumlah)
     {
-        $this->anggaran += $jumlah;
-        $this->save();
+        if ($jumlah <= 0) {
+            throw new \Exception('Jumlah yang ditambahkan harus lebih dari nol.');
+        }
+
+        DB::transaction(function () use ($jumlah) {
+            $this->updateQuietly([
+                'anggaran' => $this->anggaran + $jumlah
+            ]);
+        });
     }
-
 }
-
-

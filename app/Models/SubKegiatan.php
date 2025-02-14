@@ -49,10 +49,12 @@ class SubKegiatan extends Model
     /**
      * Relasi dengan KodeRekening (jika satu subkegiatan memiliki banyak kode rekening)
      */
+
     public function kodeRekenings()
     {
         return $this->hasMany(KodeRekening::class, 'sub_kegiatan_id');
     }
+
 
     /**
      * Relasi dengan RincianBelanjaUmum
@@ -124,4 +126,5 @@ class SubKegiatan extends Model
     {
         return $query->where('bidang_id', $bidangId);
     }
+
 }

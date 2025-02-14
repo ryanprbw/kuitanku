@@ -1,8 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
-use Illuminate\Http\Request;
 
+use Illuminate\Http\Request;
 use App\Models\Bidang;
 use App\Models\Kegiatan;
 use App\Models\Program;
@@ -18,52 +18,28 @@ class KegiatanController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'superadmin') {
-            // Total Anggaran untuk semua kegiatan
-            $totalAnggaran = Kegiatan::sum('anggaran');
+        $query = Kegiatan::with(['program', 'bidang'])
+            ->withSum('subKegiatan as total_realisasi', 'anggaran_awal'); // Ambil total realisasi langsung dari database
 
-            // Total Realisasi (dari SubKegiatan, sum anggaran yang sesuai dengan kegiatan_id)
-            $totalRealisasi = SubKegiatan::sum('anggaran');
-
-            // Mendapatkan semua kegiatan dan menghitung sisa anggaran serta total realisasi
-            $kegiatans = Kegiatan::with('program', 'bidang')
-                ->paginate(10)
-                ->through(function ($kegiatan) {
-                    // Menghitung sisa anggaran per kegiatan
-                    $kegiatan->sisa_anggaran = $kegiatan->anggaran_awal - $kegiatan->anggaran;
-
-                    // Menghitung total realisasi untuk masing-masing kegiatan berdasarkan SubKegiatan
-                    $kegiatan->total_realisasi = SubKegiatan::where('kegiatan_id', $kegiatan->id)
-                        ->sum('anggaran_awal'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
-    
-                    return $kegiatan;
-                });
-        } else {
-            // Total Anggaran untuk kegiatan berdasarkan bidang_id pengguna
-            $totalAnggaran = Kegiatan::where('bidang_id', $user->bidang_id)->sum('anggaran');
-
-            // Total Realisasi untuk subkegiatan berdasarkan bidang_id pengguna
-            $totalRealisasi = SubKegiatan::where('bidang_id', $user->bidang_id)->sum('anggaran');
-
-            // Mendapatkan kegiatan yang terkait dengan bidang pengguna
-            $kegiatans = Kegiatan::where('bidang_id', $user->bidang_id)
-                ->with('program', 'bidang')
-                ->paginate(10)
-                ->through(function ($kegiatan) {
-                    $kegiatan->sisa_anggaran = $kegiatan->anggaran_awal - $kegiatan->anggaran;
-
-                    // Menghitung total realisasi untuk masing-masing kegiatan berdasarkan SubKegiatan
-                    $kegiatan->total_realisasi = SubKegiatan::where('kegiatan_id', $kegiatan->id)
-                        ->sum('anggaran_awal'); // Sum anggaran dari SubKegiatan yang terkait dengan kegiatan
-    
-                    return $kegiatan;
-                });
+        if ($user->role !== 'superadmin') {
+            $query->where('bidang_id', $user->bidang_id);
         }
+
+        $kegiatans = $query->paginate(10);
+
+        $kegiatans->setCollection(
+            $kegiatans->getCollection()->map(function ($kegiatan) {
+                $kegiatan->sisa_anggaran = $kegiatan->anggaran_awal - $kegiatan->anggaran;
+                return $kegiatan;
+            })
+        );
+
+        $totalAnggaran = $query->sum('anggaran');
+
+        $totalRealisasi = SubKegiatan::sum('anggaran_awal');
 
         return view('kegiatan.index', compact('kegiatans', 'totalAnggaran', 'totalRealisasi'));
     }
-
-
 
     public function create()
     {
@@ -78,23 +54,16 @@ class KegiatanController extends Controller
         try {
             $program = Program::findOrFail($request->program_id);
 
-            // Periksa apakah anggaran lebih besar dari anggaran yang tersedia pada program
+            // Validasi anggaran kegiatan tidak lebih besar dari program
             if ($request->anggaran > $program->anggaran) {
                 return redirect()->back()->withErrors(['anggaran' => 'Anggaran kegiatan tidak boleh lebih besar dari anggaran program.'])->withInput();
             }
 
-            // Kurangi anggaran pada program
-            $program->anggaran -= $request->anggaran;
-            $program->save();
+            // Kurangi anggaran dari program
+            $program->kurangiAnggaran($request->anggaran);
 
-            // Simpan data kegiatan baru
-            Kegiatan::create([
-                'program_id' => $request->program_id,
-                'bidang_id' => $request->bidang_id,
-                'nama_kegiatan' => $request->nama_kegiatan,
-                'anggaran_awal' => $request->anggaran_awal,
-                'anggaran' => $request->anggaran,
-            ]);
+            // Simpan kegiatan baru
+            Kegiatan::create($request->validated());
 
             DB::commit();
             return redirect()->route('kegiatan.index')->with('message', [
@@ -107,7 +76,6 @@ class KegiatanController extends Controller
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
-
 
     public function edit(Kegiatan $kegiatan)
     {
@@ -128,44 +96,31 @@ class KegiatanController extends Controller
 
         DB::beginTransaction();
         try {
-            // Hitung selisih anggaran
+            $program = $kegiatan->program;
+
             $selisihAnggaranAwal = $request->anggaran_awal - $kegiatan->anggaran_awal;
             $selisihAnggaran = $request->anggaran - $kegiatan->anggaran;
 
-            // Ambil program terkait
-            $program = $kegiatan->program;
-
-            // Jika anggaran_awal bertambah, kurangi dari program
-            if ($selisihAnggaranAwal > 0) {
-                $program->anggaran -= $selisihAnggaranAwal;
-            } elseif ($selisihAnggaranAwal < 0) {
-                $program->anggaran += abs($selisihAnggaranAwal);
-            }
-
-            // Jika anggaran bertambah, kurangi dari program
-            if ($selisihAnggaran > 0) {
-                $program->anggaran -= $selisihAnggaran;
-            } elseif ($selisihAnggaran < 0) {
-                $program->anggaran += abs($selisihAnggaran);
-            }
-
-            // Validasi apakah program memiliki cukup anggaran
-            if ($program->anggaran < 0) {
+            if ($request->anggaran > $request->anggaran_awal) {
                 return redirect()->back()
-                    ->withErrors(['anggaran' => 'Anggaran program tidak mencukupi.'])
+                    ->withErrors(['anggaran' => 'Anggaran tidak boleh lebih besar dari anggaran awal.'])
                     ->withInput();
             }
 
-            $program->save();
+            // Update anggaran di program
+            if ($selisihAnggaranAwal > 0) {
+                $program->kurangiAnggaran($selisihAnggaranAwal);
+            } elseif ($selisihAnggaranAwal < 0) {
+                $program->tambahAnggaran(abs($selisihAnggaranAwal));
+            }
 
-            // **Update kegiatan**
-            $kegiatan->update([
-                'program_id' => $request->program_id,
-                'bidang_id' => $request->bidang_id,
-                'nama_kegiatan' => $request->nama_kegiatan,
-                'anggaran_awal' => $request->anggaran_awal,
-                'anggaran' => $request->anggaran,
-            ]);
+            if ($selisihAnggaran > 0) {
+                $program->kurangiAnggaran($selisihAnggaran);
+            } elseif ($selisihAnggaran < 0) {
+                $program->tambahAnggaran(abs($selisihAnggaran));
+            }
+
+            $kegiatan->update($request->validated());
 
             DB::commit();
             return redirect()->route('kegiatan.index')->with('success', 'Kegiatan berhasil diperbarui.');
@@ -175,23 +130,30 @@ class KegiatanController extends Controller
         }
     }
 
-
-
-
-
-
     public function destroy(Kegiatan $kegiatan)
     {
         DB::beginTransaction();
         try {
             $program = $kegiatan->program;
 
-            // Kembalikan anggaran kegiatan ke program
-            $program->anggaran += $kegiatan->anggaran;
-            $program->save();
+            if (!$program) {
+                return redirect()->back()->withErrors(['error' => 'Program tidak ditemukan untuk kegiatan ini.']);
+            }
 
-            // Hapus subkegiatan terkait secara permanen (forceDelete)
-            $kegiatan->subKegiatan()->forceDelete();
+            // Kembalikan anggaran kegiatan ke program
+            $program->tambahAnggaran($kegiatan->anggaran);
+
+            // Hapus subkegiatan terkait
+            foreach ($kegiatan->subKegiatan as $subKegiatan) {
+                $subKegiatan->kodeRekenings()->delete();
+
+                foreach ($subKegiatan->kodeRekenings as $kodeRekening) {
+                    $kodeRekening->rincianBelanjaUmum()->delete();
+                    $kodeRekening->rincianBelanjaSppd()->delete();
+                }
+
+                $subKegiatan->delete();
+            }
 
             // Hapus kegiatan
             $kegiatan->delete();
@@ -199,7 +161,7 @@ class KegiatanController extends Controller
             DB::commit();
             return redirect()->route('kegiatan.index')->with('message', [
                 'type' => 'success',
-                'content' => 'Kegiatan berhasil dihapus dan anggaran program diperbarui.',
+                'content' => 'Kegiatan dan semua data terkait berhasil dihapus.',
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -207,6 +169,4 @@ class KegiatanController extends Controller
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus kegiatan.']);
         }
     }
-
-
 }

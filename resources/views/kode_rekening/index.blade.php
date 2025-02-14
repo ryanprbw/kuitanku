@@ -46,11 +46,11 @@
                                         </td>
                                         <td class="px-4 py-2">{{ $kodeRekening->bidang->nama_bidang ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($kodeRekening->anggaran_awal, 0, ',', '.') }}</td>
+                                            {{ number_format($kodeRekening->anggaran_awal, 2, ',', '.') }}</td>
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($kodeRekening->anggaran_realisasi, 0, ',', '.') }}</td>
+                                            {{ number_format($kodeRekening->anggaran_realisasi, 2, ',', '.') }}</td>
                                         <td class="px-4 py-2">Rp
-                                            {{ number_format($kodeRekening->sisa_anggaran, 0, ',', '.') }}</td>
+                                            {{ number_format($kodeRekening->anggaran, 2, ',', '.') }}</td>
                                         <td class="px-4 py-2 text-center">
                                             @if (Auth::user()->role !== 'bidang')
                                                 <a href="{{ route('kode_rekening.show', $kodeRekening->id) }}"

@@ -16,37 +16,29 @@ class ProgramController extends Controller
     {
         $user = auth()->user();
 
-        if ($user->role === 'superadmin') {
-            $totalAnggaran = Program::sum('anggaran');
-            $totalRealisasi = Kegiatan::sum('anggaran');
+        $query = Program::with(['skpd', 'bidang'])
+            ->withSum('kegiatan as total_realisasi', 'anggaran_awal'); // Hitung total realisasi langsung di query
 
-            $programs = Program::with('skpd', 'bidang')
-                ->paginate(10)
-                ->through(function ($program) {
-                    $program->sisa_anggaran = $program->anggaran_awal - $program->anggaran;
-                    $program->total_realisasi = $program->kegiatan()->sum('anggaran_awal'); // Ambil langsung dari relasi
-                    return $program;
-                });
-
-        } else {
-            $totalAnggaran = Program::where('bidang_id', $user->bidang_id)->sum('anggaran');
-            $totalRealisasi = Kegiatan::where('bidang_id', $user->bidang_id)->sum('anggaran');
-
-            $programs = Program::where('bidang_id', $user->bidang_id)
-                ->with('skpd', 'bidang')
-                ->paginate(10)
-                ->through(function ($program) {
-                    $program->sisa_anggaran = $program->anggaran_awal - $program->anggaran;
-                    $program->total_realisasi = $program->kegiatan()->sum('anggaran_awal');
-                    return $program;
-                });
+        if ($user->role !== 'superadmin') {
+            $query->where('bidang_id', $user->bidang_id);
         }
+
+        $programs = $query->paginate(10);
+
+        // Pastikan pagination tetap berfungsi setelah modifikasi data
+        $programs->setCollection(
+            $programs->getCollection()->map(function ($program) {
+                $program->sisa_anggaran = $program->anggaran_awal - $program->anggaran;
+                return $program;
+            })
+        );
+
+        $totalAnggaran = $query->sum('anggaran');
+        $totalRealisasi = Kegiatan::sum('anggaran_awal');
+
 
         return view('program.index', compact('programs', 'totalAnggaran', 'totalRealisasi'));
     }
-
-
-
 
     public function show(Program $program)
     {
@@ -73,6 +65,13 @@ class ProgramController extends Controller
                     ->withInput();
             }
 
+            if ($skpd->anggaran < $request->anggaran) {
+                return redirect()->back()
+                    ->withErrors(['anggaran' => 'Anggaran SKPD tidak mencukupi.'])
+                    ->withInput();
+            }
+
+            // Kurangi anggaran dari SKPD
             $skpd->kurangiAnggaran($request->anggaran);
 
             $program = Program::create($request->validated());
@@ -91,8 +90,6 @@ class ProgramController extends Controller
         }
     }
 
-
-
     public function edit(Program $program)
     {
         return view('program.edit', [
@@ -108,7 +105,7 @@ class ProgramController extends Controller
         try {
             $skpd = $program->skpd;
             $selisihAnggaran = $request->anggaran - $program->anggaran;
-            $selisihAnggaranAwal = $request->anggaran_awal - $program->anggaran_awal; // Cek perubahan anggaran awal
+            $selisihAnggaranAwal = $request->anggaran_awal - $program->anggaran_awal;
 
             if ($request->anggaran > $request->anggaran_awal) {
                 return redirect()->back()
@@ -116,22 +113,27 @@ class ProgramController extends Controller
                     ->withInput();
             }
 
-            // Jika anggaran awal bertambah, kurangi dari anggaran SKPD
+            // Jika anggaran awal berubah, update SKPD
             if ($selisihAnggaranAwal > 0) {
+                if ($skpd->anggaran < $selisihAnggaranAwal) {
+                    return redirect()->back()->withErrors(['anggaran_awal' => 'Anggaran SKPD tidak mencukupi.'])->withInput();
+                }
                 $skpd->kurangiAnggaran($selisihAnggaranAwal);
-            }
-            // Jika anggaran awal berkurang, tambahkan kembali ke anggaran SKPD
-            elseif ($selisihAnggaranAwal < 0) {
+            } elseif ($selisihAnggaranAwal < 0) {
                 $skpd->tambahAnggaran(abs($selisihAnggaranAwal));
             }
 
-            // Update anggaran program
+            // Update anggaran program dan kembalikan atau kurangi dari SKPD
             if ($selisihAnggaran < 0) {
-                $skpd->tambahAnggaran(abs($selisihAnggaran)); // Jika anggaran dikurangi, tambahkan kembali ke SKPD
+                $skpd->tambahAnggaran(abs($selisihAnggaran));
             } else {
-                $skpd->kurangiAnggaran($selisihAnggaran); // Jika anggaran bertambah, kurangi dari SKPD
+                if ($skpd->anggaran < $selisihAnggaran) {
+                    return redirect()->back()->withErrors(['anggaran' => 'Anggaran SKPD tidak mencukupi.'])->withInput();
+                }
+                $skpd->kurangiAnggaran($selisihAnggaran);
             }
 
+            // Perbarui program
             $program->update($request->only(['nama', 'skpd_id', 'bidang_id', 'anggaran', 'anggaran_awal']));
 
             DB::commit();
@@ -148,24 +150,20 @@ class ProgramController extends Controller
         }
     }
 
-
-
     public function destroy(Program $program)
     {
         DB::beginTransaction();
         try {
-            // **Hapus semua kegiatan dan sub-kegiatan sebelum menghapus program**
             foreach ($program->kegiatan as $kegiatan) {
-                $kegiatan->subKegiatan()->forceDelete(); // Hapus sub kegiatan
-                $kegiatan->forceDelete(); // Hapus kegiatan
+                $kegiatan->subKegiatan()->delete(); // Soft delete sub-kegiatan
+                $kegiatan->delete(); // Soft delete kegiatan
             }
 
             // Kembalikan anggaran ke SKPD sebelum menghapus program
-            $skpd = $program->skpd;
-            $skpd->tambahAnggaran($program->anggaran);
+            $program->skpd->tambahAnggaran($program->anggaran);
 
-            // Hapus program secara permanen
-            $program->forceDelete();
+            // Hapus program (gunakan `delete()` untuk soft delete, atau `forceDelete()` untuk permanent delete)
+            $program->delete();
 
             DB::commit();
             return redirect()->route('program.index')->with('message', [

@@ -19,48 +19,52 @@ class KodeRekeningController extends Controller
     {
         $user = auth()->user();
 
-        // Menghitung total anggaran untuk kode rekening (berdasarkan peran user)
+        // 🔹 Hitung total anggaran dari kode rekening (berdasarkan role user)
         $totalAnggaran = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
             $query->whereHas('subKegiatan', function ($q) use ($user) {
                 $q->where('bidang_id', $user->bidang_id);
             });
-        })->sum('anggaran_awal');
+        })->sum('anggaran');
 
-        // Menghitung total anggaran realisasi (dari tabel rincian belanja yang terkait dengan kode rekening)
+        // 🔹 Hitung total realisasi anggaran
         $totalRealisasi = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
             $query->whereHas('subKegiatan', function ($q) use ($user) {
                 $q->where('bidang_id', $user->bidang_id);
             });
-        })->withSum('rincianBelanjaUmum', 'anggaran')
-            ->withSum('rincianBelanjaSppd', 'anggaran') // Menambahkan rincianBelanjaSppd ke dalam penghitungan
-            ->get()->sum(function ($kodeRekening) {
-                // Menghitung total realisasi anggaran dari rincianBelanjaUmum dan rincianBelanjaSppd
-                $anggaranRealisasi = $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
-                return $anggaranRealisasi;
+        })
+            ->withSum('rincianBelanjaUmum', 'anggaran')
+            ->withSum('rincianBelanjaSppd', 'anggaran')
+            ->get()
+            ->sum(function ($kodeRekening) {
+                return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
             });
 
-        // Mengambil semua kode rekening dengan eager loading dan filter bidang jika perlu
-        $kodeRekenings = KodeRekening::with(['subKegiatan', 'rincianBelanjaUmum', 'rincianBelanjaSppd']) // Menambahkan eager loading untuk rincianBelanjaSppd
+        // 🔹 Ambil semua kode rekening
+        $kodeRekenings = KodeRekening::with([
+            'subKegiatan',
+            'rincianBelanjaUmum',
+            'rincianBelanjaSppd'
+        ])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->whereHas('subKegiatan', function ($q) use ($user) {
                     $q->where('bidang_id', $user->bidang_id);
                 });
             })
+            ->withSum('rincianBelanjaUmum', 'anggaran')
+            ->withSum('rincianBelanjaSppd', 'anggaran')
             ->paginate(20)
             ->through(function ($kodeRekening) {
-                // Menghitung anggaran realisasi dari rincian belanja umum dan rincian belanja sppd
-                $anggaranRealisasi = $kodeRekening->rincianBelanjaUmum()->sum('anggaran') + $kodeRekening->rincianBelanjaSppd()->sum('anggaran');
-
-                // Menghitung sisa anggaran (total anggaran - realisasi)
-                $kodeRekening->anggaran_realisasi = $anggaranRealisasi;
-                $kodeRekening->sisa_anggaran = $kodeRekening->anggaran_awal - $anggaranRealisasi;
+                // **Hitung total realisasi langsung**
+                $kodeRekening->anggaran_realisasi = $kodeRekening->rincian_belanja_umum_sum_anggaran +
+                    $kodeRekening->rincian_belanja_sppd_sum_anggaran;
 
                 return $kodeRekening;
             });
 
-        // Mengirimkan data ke view
         return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran', 'totalRealisasi'));
     }
+
+
 
 
 
@@ -216,19 +220,25 @@ class KodeRekeningController extends Controller
                 return redirect()->back()->withErrors(['error' => 'Sub Kegiatan tidak ditemukan.']);
             }
 
-            // Kembalikan anggaran ke Sub Kegiatan
+            // Kembalikan anggaran ke Sub Kegiatan sebelum menghapus
             $subKegiatan->anggaran += $kodeRekening->anggaran;
             $subKegiatan->save();
 
+            // Hapus semua rincian belanja yang terkait dengan kode rekening ini
+            $kodeRekening->rincianBelanjaUmum()->forceDelete();
+            $kodeRekening->rincianBelanjaSppd()->forceDelete();
+
             // Hapus Kode Rekening
-            $kodeRekening->delete();
+            $kodeRekening->forceDelete();
 
             DB::commit();
-            return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening berhasil dihapus.');
+            return redirect()->route('kode_rekening.index')->with('success', 'Kode Rekening dan semua rincian belanja terkait berhasil dihapus.');
         } catch (\Exception $e) {
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan saat menghapus data: ' . $e->getMessage()]);
         }
     }
+
+
 
 }

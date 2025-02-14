@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use DB;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -94,57 +95,74 @@ class RincianBelanjaSppd extends Model
     {
         parent::boot();
 
+        // Sebelum data dibuat, kurangi anggaran kode rekening
         static::creating(function ($model) {
-            $kodeRekening = $model->kodeRekening;
+            DB::transaction(function () use ($model) {
+                $kodeRekening = KodeRekening::find($model->kode_rekening_id);
 
-            if (!$kodeRekening) {
-                throw new \Exception('Kode Rekening tidak ditemukan.');
-            }
+                if (!$kodeRekening) {
+                    Log::error('Kode Rekening tidak ditemukan saat membuat Rincian Belanja SPPD.');
+                    throw new \Exception('Kode Rekening tidak ditemukan.');
+                }
 
-            if ($kodeRekening->anggaran < $model->pengeluaran) {
-                throw new \Exception('Anggaran pada Kode Rekening tidak mencukupi.');
-            }
+                if ($kodeRekening->anggaran < $model->sebesar) {
+                    throw new \Exception('Anggaran pada Kode Rekening tidak mencukupi.');
+                }
 
-            $kodeRekening->anggaran -= $model->pengeluaran;
-            $kodeRekening->save();
+                $kodeRekening->decrement('anggaran', $model->sebesar);
+            });
         });
 
+        // Sebelum data diperbarui, sesuaikan anggaran kode rekening
         static::updating(function ($model) {
-            $kodeRekening = $model->kodeRekening;
+            DB::transaction(function () use ($model) {
+                $kodeRekening = KodeRekening::find($model->kode_rekening_id);
 
-            if (!$kodeRekening) {
-                throw new \Exception('Kode Rekening tidak ditemukan.');
-            }
+                if (!$kodeRekening) {
+                    throw new \Exception('Kode Rekening tidak ditemukan.');
+                }
 
-            // Hitung selisih pengeluaran
-            $selisih = $model->getOriginal('pengeluaran') - $model->pengeluaran;
+                // Hitung selisih antara nilai lama dan yang baru
+                $selisih = $model->getOriginal('sebesar') - $model->sebesar;
 
-            if ($selisih > 0) {
-                // Kembalikan anggaran jika pengeluaran berkurang
-                $kodeRekening->anggaran += abs($selisih);
-            } elseif ($kodeRekening->anggaran < abs($selisih)) {
-                // Cek apakah anggaran mencukupi untuk pengeluaran tambahan
-                throw new \Exception('Anggaran pada Kode Rekening tidak mencukupi untuk perubahan.');
-            } else {
-                // Kurangi anggaran jika pengeluaran bertambah
-                $kodeRekening->anggaran -= abs($selisih);
-            }
-
-            $kodeRekening->save();
+                if ($selisih > 0) {
+                    // Jika nilai berkurang, tambahkan kembali ke kode rekening
+                    $kodeRekening->increment('anggaran', abs($selisih));
+                } elseif ($selisih < 0) {
+                    // Jika bertambah, cek apakah cukup anggaran
+                    if ($kodeRekening->anggaran < abs($selisih)) {
+                        throw new \Exception('Anggaran tidak mencukupi untuk perubahan.');
+                    }
+                    $kodeRekening->decrement('anggaran', abs($selisih));
+                }
+            });
         });
 
+        // Sebelum data dihapus (Soft Delete), kembalikan anggaran ke kode rekening
         static::deleting(function ($model) {
-            $kodeRekening = $model->kodeRekening;
+            DB::transaction(function () use ($model) {
+                $kodeRekening = KodeRekening::find($model->kode_rekening_id);
 
-            if (!$kodeRekening) {
-                throw new \Exception('Kode Rekening tidak ditemukan.');
-            }
+                if (!$kodeRekening) {
+                    throw new \Exception('Kode Rekening tidak ditemukan.');
+                }
 
-            // Kembalikan anggaran jika rincian belanja dihapus
-            $kodeRekening->anggaran += $model->pengeluaran;
-            $kodeRekening->save();
+                $kodeRekening->increment('anggaran', $model->sebesar);
+            });
+        });
+
+        // Jika dihapus secara permanen, tetap kembalikan anggaran
+        static::forceDeleting(function ($model) {
+            DB::transaction(function () use ($model) {
+                $kodeRekening = KodeRekening::find($model->kode_rekening_id);
+
+                if ($kodeRekening) {
+                    $kodeRekening->increment('anggaran', $model->sebesar);
+                }
+            });
         });
     }
+
     public function getPbjtAttribute()
     {
         return $this->dpp * 0.1;

@@ -12,6 +12,7 @@ use App\Models\Bendahara;
 use App\Models\Pegawai;
 use App\Models\RincianBelanjaSppd;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DB;
 use Illuminate\Http\Request;
 
 class RincianBelanjaSppdController extends Controller
@@ -145,45 +146,50 @@ class RincianBelanjaSppdController extends Controller
 
     public function update(Request $request, $id)
     {
-        $rincianSppd = RincianBelanjaSppd::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            $rincianSppd = RincianBelanjaSppd::findOrFail($id);
 
-        $request->validate([
-            'program_id' => 'required|exists:programs,id',
-            'kegiatan_id' => 'required|exists:kegiatans,id',
-            'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
-            'kode_rekening_id' => 'required|exists:kode_rekenings,id',
-            'sebesar' => 'required|numeric|min:0',
-            'untuk_pengeluaran' => 'required|string|max:255',
-            'nomor_st' => 'required|string',
-            'tanggal_st' => 'required|date',
-            'nomor_spd' => 'required|string',
-            'tanggal_spd' => 'required|date',
-            'bulan' => 'required|string|max:20',
-            'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
-            'pptk_id' => 'required|exists:pptks,id',
-            'bendahara_id' => 'required|exists:bendaharas,id',
-            'penerima_id' => 'required|exists:pegawais,id',
-        ]);
+            $request->validate([
+                'program_id' => 'required|exists:programs,id',
+                'kegiatan_id' => 'required|exists:kegiatans,id',
+                'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
+                'kode_rekening_id' => 'required|exists:kode_rekenings,id',
+                'sebesar' => 'required|numeric|min:0',
+            ]);
 
-        $data = $request->all();
-        $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
+            $data = $request->all();
+            $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
-        $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
-        $selisih = $rincianSppd->sebesar - $request->sebesar;
+            // Ambil kode rekening terkait
+            $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
+            $selisih = $rincianSppd->sebesar - $request->sebesar;
 
-        if ($selisih > 0) {
-            $kodeRekening->anggaran += $selisih;
-        } elseif ($kodeRekening->anggaran < abs($selisih)) {
-            return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi untuk perubahan.'])->withInput();
-        } else {
-            $kodeRekening->anggaran -= abs($selisih);
+            if ($selisih > 0) {
+                // Jika anggaran lama lebih besar, kembalikan selisih ke kode rekening
+                $kodeRekening->anggaran += $selisih;
+            } elseif ($kodeRekening->anggaran < abs($selisih)) {
+                // Jika anggaran baru lebih besar tetapi kode rekening tidak cukup, batalkan update
+                return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
+            } else {
+                // Jika anggaran baru lebih besar, kurangi kode rekening
+                $kodeRekening->anggaran -= abs($selisih);
+            }
+
+            // Simpan perubahan anggaran
+            $kodeRekening->save();
+
+            // Update rincian belanja
+            $rincianSppd->update($data);
+
+            DB::commit();
+            return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
-
-        $kodeRekening->save();
-        $rincianSppd->update($data);
-
-        return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {

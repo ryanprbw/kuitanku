@@ -33,7 +33,8 @@
                         Berkas / Surat Pertanggung Jawaban atas Belanja kegiatan dan Perjalanan Dinas diserahkan oleh
                         PPTK atau Pelaksana Perjalanan Dinas kepada PPK untuk di Verifikasi, kemudian di Cek kembali
                         oleh Bendahara Pengeluaran selanjutnya ditandatangani oleh Kepala Dinas / Pengguna Anggaran dan
-                        kemudian Bendahara Pengeluaran melakukan penginputan ke Link FMIS serta melanjutkan proses
+                        kemudian Bendahara Pengeluaran melakukan penginputan ke Link Sipanda/SIPD serta melanjutkan
+                        proses
                         pencairan melalui Link Cash Management System (CMS) Bank Kalsel.
                     </p>
 

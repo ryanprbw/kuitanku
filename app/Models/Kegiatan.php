@@ -22,36 +22,36 @@ class Kegiatan extends Model
 
     protected $casts = [
         'anggaran' => 'float',
+        'anggaran_awal' => 'float',
     ];
 
-    /**
-     * Relasi dengan Program.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    // Relasi dengan Program
     public function program()
     {
         return $this->belongsTo(Program::class, 'program_id', 'id');
     }
 
-    /**
-     * Relasi dengan Bidang.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
+    // Relasi dengan Bidang
     public function bidang()
     {
         return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 
-    /**
-     * Relasi dengan SubKegiatan.
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
-     */
+    // Relasi dengan SubKegiatan
     public function subKegiatan()
     {
         return $this->hasMany(SubKegiatan::class, 'kegiatan_id', 'id');
+    }
+
+
+    public function subKegiatans()
+    {
+        return $this->hasMany(SubKegiatan::class, 'kegiatan_id');
+    }
+
+    public function kodeRekenings()
+    {
+        return $this->hasMany(KodeRekening::class, 'kegiatan_id');
     }
 
     /**
@@ -72,19 +72,14 @@ class Kegiatan extends Model
 
     /**
      * Menghitung sisa anggaran kegiatan.
-     *
-     * @return float
      */
     public function getSisaAnggaranAttribute()
     {
-        return max(0, $this->anggaran_awal - $this->anggaran);
+        return max(0, ($this->anggaran_awal ?? 0) - ($this->anggaran ?? 0));
     }
 
     /**
      * Mengurangi anggaran kegiatan.
-     *
-     * @param float $jumlah
-     * @throws \Exception Jika jumlah tidak valid atau anggaran tidak mencukupi.
      */
     public function kurangiAnggaran($jumlah)
     {
@@ -96,27 +91,24 @@ class Kegiatan extends Model
             throw new \Exception('Anggaran tidak mencukupi.');
         }
 
-        $this->decrement('anggaran', $jumlah);
-        Log::info("Anggaran kegiatan dikurangi: {$jumlah}. Sisa anggaran: {$this->anggaran}");
+        DB::transaction(function () use ($jumlah) {
+            $this->decrement('anggaran', $jumlah);
+            Log::info("Anggaran kegiatan dikurangi: {$jumlah}. Sisa anggaran: {$this->anggaran}");
+        });
     }
 
     /**
-     * Menghitung jumlah sub-kegiatan dalam kegiatan ini.
-     *
-     * @return int
+     * Menambah anggaran kegiatan.
      */
-    public function jumlahSubKegiatan()
+    public function tambahAnggaran($jumlah)
     {
-        return $this->subKegiatan()->count();
-    }
+        if ($jumlah <= 0) {
+            throw new \Exception('Jumlah penambahan anggaran harus lebih besar dari 0.');
+        }
 
-    /**
-     * Menghitung total anggaran dari semua sub-kegiatan.
-     *
-     * @return float
-     */
-    public function totalAnggaranSubKegiatan()
-    {
-        return $this->subKegiatan()->sum('anggaran') ?? 0;
+        DB::transaction(function () use ($jumlah) {
+            $this->increment('anggaran', $jumlah);
+            Log::info("Anggaran kegiatan bertambah: {$jumlah}. Total anggaran: {$this->anggaran}");
+        });
     }
 }
