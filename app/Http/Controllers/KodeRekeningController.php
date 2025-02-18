@@ -23,15 +23,23 @@ class KodeRekeningController extends Controller
 
         // 🔹 Hitung total anggaran dari kode rekening (berdasarkan role user)
         $totalAnggaran = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
-            $query->whereHas('subKegiatan', function ($q) use ($user) {
-                $q->where('bidang_id', $user->bidang_id);
+            $query->where(function ($q) use ($user) {
+                // Memeriksa bidang_id di KodeRekening atau subKegiatan
+                $q->where('bidang_id', $user->bidang_id)
+                    ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
+                        $subQuery->where('bidang_id', $user->bidang_id);
+                    });
             });
         })->sum('anggaran');
 
         // 🔹 Hitung total realisasi anggaran
         $totalRealisasi = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
-            $query->whereHas('subKegiatan', function ($q) use ($user) {
-                $q->where('bidang_id', $user->bidang_id);
+            $query->where(function ($q) use ($user) {
+                // Memeriksa bidang_id di KodeRekening atau subKegiatan
+                $q->where('bidang_id', $user->bidang_id)
+                    ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
+                        $subQuery->where('bidang_id', $user->bidang_id);
+                    });
             });
         })
             ->withSum('rincianBelanjaUmum', 'anggaran')
@@ -48,8 +56,12 @@ class KodeRekeningController extends Controller
             'rincianBelanjaSppd'
         ])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
-                $query->whereHas('subKegiatan', function ($q) use ($user) {
-                    $q->where('bidang_id', $user->bidang_id);
+                $query->where(function ($q) use ($user) {
+                    // Memeriksa bidang_id di KodeRekening atau subKegiatan
+                    $q->where('bidang_id', $user->bidang_id)
+                        ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
+                        $subQuery->where('bidang_id', $user->bidang_id);
+                    });
                 });
             })
             ->when($search, function ($query) use ($search) {
@@ -72,6 +84,8 @@ class KodeRekeningController extends Controller
 
         return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran', 'totalRealisasi'));
     }
+
+
 
 
 
