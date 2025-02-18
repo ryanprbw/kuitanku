@@ -74,6 +74,10 @@
                     </select>
                 </div>
 
+                <!-- Tambahkan script untuk mengaktifkan Select2 -->
+
+
+
                 {{-- Anggaran --}}
                 <div>
                     <label for="anggaran" class="block mb-2 text-sm font-medium text-gray-700">Nominal Rp.</label>
@@ -102,7 +106,7 @@
 
                 <div>
                     <label for="nomor_st" class="block mb-2 text-sm font-medium text-gray-700">Nomor ST</label>
-                    <input type="number" step="0.01" id="nomor_st" name="nomor_st"
+                    <input type="text" step="0.01" id="nomor_st" name="nomor_st"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200"
                         placeholder="Masukkan Nomor ST">
                 </div>
@@ -116,7 +120,7 @@
                 </div>
                 <div>
                     <label for="nomor_spd" class="block mb-2 text-sm font-medium text-gray-700">Nomor SPD</label>
-                    <input type="number" step="0.01" id="nomor_spd" name="nomor_spd"
+                    <input type="text" step="0.01" id="nomor_spd" name="nomor_spd"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200"
                         placeholder="Masukkan Nomor SPD">
                 </div>
@@ -215,7 +219,7 @@
                 <div>
                     <label for="penerima_id" class="block mb-2 text-sm font-medium text-gray-700">Penerima</label>
                     <select id="penerima_id" name="penerima_id"
-                        class="select2 block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                        class="select2 block w-full h-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="" selected>Pilih Penerima</option>
                         @foreach ($pegawais as $pegawai)
                             <option value="{{ $pegawai->id }}">{{ $pegawai->nama }}</option>
@@ -285,4 +289,13 @@
         // Mengisi nilai input sebesar dengan nilai anggaran (jika ada)
         document.getElementById('sebesar').value = anggaranValue;
     }
+</script>
+<script>
+    $(document).ready(function() {
+        // Mengaktifkan Select2 pada elemen select dengan id "kode_rekening_id"
+        $('#kode_rekening_id').select2({
+            placeholder: "Pilih Kode Rekening", // Placeholder saat dropdown kosong
+            allowClear: true // Menambahkan opsi untuk menghapus pilihan
+        });
+    });
 </script>

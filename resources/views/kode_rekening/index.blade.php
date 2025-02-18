@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div class="">
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
@@ -16,13 +16,29 @@
                     @endif
 
                     <div class="flex justify-between items-center mb-4">
-                        <h3 class="text-lg font-medium text-gray-900">Kode Rekening</h3>
-                        {{-- <h3 class="text-lg font-semibold">Sisa Anggaran: Rp
-                            {{ number_format($totalAnggaran, 0, ',', '.') }}</h3> --}}
+
+                        <form action="{{ route('kode_rekening.index') }}" method="GET"
+                            class="flex items-center space-x-4">
+                            <label for="perPage" class="text-sm text-gray-600">Lihat</label>
+                            <select name="perPage" id="perPage" class="px-8 py-2 border rounded-md"
+                                onchange="this.form.submit()">
+                                <option value="20" {{ request('perPage') == 20 ? 'selected' : '' }}>20</option>
+                                <option value="50" {{ request('perPage') == 50 ? 'selected' : '' }}>50</option>
+                                <option value="100" {{ request('perPage') == 100 ? 'selected' : '' }}>100</option>
+                            </select>
+                            <span class="text-sm text-gray-600">Kode Rekening</span>
+                        </form>
+
+
                         <a href="{{ route('kode_rekening.create') }}"
-                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                            Tambah Kode Rekening
-                        </a>
+                            class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Tambah Kode
+                            Rekening</a>
+                        <form action="{{ route('kode_rekening.index') }}" method="GET" class="flex space-x-4">
+                            <input type="text" name="search" value="{{ request('search') }}"
+                                placeholder="Cari kode rekening..." class="px-4 py-2 border rounded-md">
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">Cari</button>
+                        </form>
                     </div>
 
                     <div class="overflow-x-auto">
@@ -42,7 +58,8 @@
                                 @forelse ($kodeRekenings as $kodeRekening)
                                     <tr>
                                         <td class="px-4 py-2">{{ $kodeRekening->nama_kode_rekening }}</td>
-                                        <td class="px-4 py-2">{{ $kodeRekening->subKegiatan->nama_sub_kegiatan ?? '-' }}
+                                        <td class="px-4 py-2">
+                                            {{ $kodeRekening->subKegiatan->nama_sub_kegiatan ?? '-' }}
                                         </td>
                                         <td class="px-4 py-2">{{ $kodeRekening->bidang->nama_bidang ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp
@@ -52,19 +69,17 @@
                                         <td class="px-4 py-2">Rp
                                             {{ number_format($kodeRekening->anggaran, 2, ',', '.') }}</td>
                                         <td class="px-4 py-2 text-center">
-                                            @if (Auth::user()->role !== 'bidang')
-                                                <a href="{{ route('kode_rekening.show', $kodeRekening->id) }}"
-                                                    class="text-green-500 hover:underline">Detail</a>
-                                                <a href="{{ route('kode_rekening.edit', $kodeRekening->id) }}"
-                                                    class="text-blue-500 hover:underline ml-2">Edit</a>
-                                                <form action="{{ route('kode_rekening.destroy', $kodeRekening->id) }}"
-                                                    method="POST" class="inline ml-2">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="text-red-500 hover:underline"
-                                                        onclick="return confirm('Yakin ingin menghapus kode rekening ini?')">Hapus</button>
-                                                </form>
-                                            @endif
+                                            <a href="{{ route('kode_rekening.show', $kodeRekening->id) }}"
+                                                class="text-green-500 hover:underline">Detail</a>
+                                            <a href="{{ route('kode_rekening.edit', $kodeRekening->id) }}"
+                                                class="text-blue-500 hover:underline ml-2">Edit</a>
+                                            <form action="{{ route('kode_rekening.destroy', $kodeRekening->id) }}"
+                                                method="POST" class="inline ml-2">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 hover:underline"
+                                                    onclick="return confirm('Yakin ingin menghapus kode rekening ini?')">Hapus</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 @empty

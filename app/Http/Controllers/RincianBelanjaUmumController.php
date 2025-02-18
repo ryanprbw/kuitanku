@@ -39,10 +39,16 @@ class RincianBelanjaUmumController extends Controller
 
     public function create()
     {
+        $user = auth()->user(); // Ambil data pengguna yang sedang login
+
+        // Ambil data berdasarkan bidang_id pengguna yang login
         $programs = Program::all();
         $kegiatans = Kegiatan::all();
         $sub_kegiatans = SubKegiatan::all();
-        $kode_rekenings = KodeRekening::all();
+
+        // Filter kode_rekenings berdasarkan bidang_id pengguna
+        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
+
         $kepala_dinas = KepalaDinas::all();
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
@@ -59,6 +65,7 @@ class RincianBelanjaUmumController extends Controller
             'pegawais'
         ));
     }
+
 
     public function store(Request $request)
     {
@@ -121,11 +128,12 @@ class RincianBelanjaUmumController extends Controller
 
     public function edit($id)
     {
+        $user = auth()->user();
         $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
         $programs = Program::all();
         $kegiatans = Kegiatan::all();
         $sub_kegiatans = SubKegiatan::all();
-        $kode_rekenings = KodeRekening::all();
+        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
         $kepala_dinas = KepalaDinas::all();
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();

@@ -213,7 +213,9 @@
                 <td style=" font-weight: bold; "> : </td>
                 <td colspan="8">
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    /BK/Disdukcapil/2024</td>
+                    /BK/Disdukcapil/{{ date('Y') }}
+                </td>
+
             </tr>
 
         </table>
@@ -241,12 +243,14 @@
             <tr>
                 <td>Nomor ST</td>
                 <td>:</td>
-                <td colspan="9">{{ $rincianSppd->nomor_st }} tanggal {{ \Carbon\Carbon::parse($rincianSppd->tanggal_st)->format('d/m/Y') }}</td>
+                <td colspan="9">{{ $rincianSppd->nomor_st }} tanggal
+                    {{ \Carbon\Carbon::parse($rincianSppd->tanggal_st)->format('d/m/Y') }}</td>
             </tr>
             <tr>
                 <td>Nomor SPD</td>
                 <td>:</td>
-                <td colspan="5">{{ $rincianSppd->nomor_spd }} tanggal {{ \Carbon\Carbon::parse($rincianSppd->tanggal_spd)->format('d/m/Y') }}</td>
+                <td colspan="5">{{ $rincianSppd->nomor_spd }} tanggal
+                    {{ \Carbon\Carbon::parse($rincianSppd->tanggal_spd)->format('d/m/Y') }}</td>
 
                 <td style="border-top: 2px solid; border-left: 2px solid; border-right: 2px solid;" colspan="3">
                     Telah diperiksa oleh PPK-SKPD<br>
@@ -259,16 +263,20 @@
                 <td colspan="5"></td>
 
 
-                <td style=" border-left: 2px solid; border-right: 2px solid;" colspan="3">Tanggal: ............................</td>
+                <td style=" border-left: 2px solid; border-right: 2px solid;" colspan="3">Tanggal:
+                    ............................</td>
                 <td></td>
             </tr>
             <tr>
 
-                <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid; border-left: 2px solid;">Sebesar</td>
+                <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid; border-left: 2px solid;">
+                    Sebesar</td>
                 <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid;">:</td>
-                <td class="sebesar" style=" border-top: 2px solid; border-right: 2px solid; border-bottom: 2px solid;" colspan="2">{{ number_format($rincianSppd->sebesar, 0, ',', '.') }},-</td>
+                <td class="sebesar" style=" border-top: 2px solid; border-right: 2px solid; border-bottom: 2px solid;"
+                    colspan="2">{{ number_format($rincianSppd->sebesar, 0, ',', '.') }},-</td>
                 <td colspan="3"></td>
-                <td style=" border-left: 2px solid; border-right: 2px solid; border-bottom: 2px solid; padding-left: 60px;" colspan="3">Paraf: <br>&nbsp;</td>
+                <td style=" border-left: 2px solid; border-right: 2px solid; border-bottom: 2px solid; padding-left: 60px;"
+                    colspan="3">Paraf: <br>&nbsp;</td>
                 <td></td>
             </tr>
             <tr>
@@ -319,7 +327,9 @@
             </div>
             <div style="padding-top: 40px">
                 <p>&nbsp;</p>
-                <p>Rantau, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $rincianSppd->bulan ?? '-' }} {{ now()->year }}</p>
+                <p>Rantau,
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $rincianSppd->bulan ?? '-' }}
+                    {{ now()->year }}</p>
 
 
                 <p>Penerima,</p>

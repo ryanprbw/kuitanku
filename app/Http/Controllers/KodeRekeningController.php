@@ -15,9 +15,11 @@ class KodeRekeningController extends Controller
      *
      * @return \Illuminate\View\View
      */
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+        $search = $request->get('search', ''); // Menangkap input pencarian
+        $perPage = $request->get('perPage', 20); // Menangkap nilai perPage (default 20)
 
         // 🔹 Hitung total anggaran dari kode rekening (berdasarkan role user)
         $totalAnggaran = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
@@ -39,7 +41,7 @@ class KodeRekeningController extends Controller
                 return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
             });
 
-        // 🔹 Ambil semua kode rekening
+        // 🔹 Ambil semua kode rekening dengan pencarian dan pagination berdasarkan perPage
         $kodeRekenings = KodeRekening::with([
             'subKegiatan',
             'rincianBelanjaUmum',
@@ -50,9 +52,16 @@ class KodeRekeningController extends Controller
                     $q->where('bidang_id', $user->bidang_id);
                 });
             })
+            ->when($search, function ($query) use ($search) {
+                // Menambahkan kondisi pencarian berdasarkan nama kode rekening dan sub kegiatan
+                $query->where('nama_kode_rekening', 'like', '%' . $search . '%')
+                    ->orWhereHas('subKegiatan', function ($q) use ($search) {
+                    $q->where('nama_sub_kegiatan', 'like', '%' . $search . '%');
+                });
+            })
             ->withSum('rincianBelanjaUmum', 'anggaran')
             ->withSum('rincianBelanjaSppd', 'anggaran')
-            ->paginate(20)
+            ->paginate($perPage)
             ->through(function ($kodeRekening) {
                 // **Hitung total realisasi langsung**
                 $kodeRekening->anggaran_realisasi = $kodeRekening->rincian_belanja_umum_sum_anggaran +
@@ -63,6 +72,8 @@ class KodeRekeningController extends Controller
 
         return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran', 'totalRealisasi'));
     }
+
+
 
 
 

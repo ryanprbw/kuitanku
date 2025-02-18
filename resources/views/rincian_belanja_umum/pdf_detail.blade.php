@@ -212,8 +212,11 @@
                 <td style="font-weight: bold; ">No. BKU</td>
                 <td style=" font-weight: bold; "> : </td>
                 <td colspan="8">
+                <td colspan="8">
                     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    /BK/Disdukcapil/2024</td>
+                    /BK/Disdukcapil/{{ date('Y') }}
+                </td>
+
             </tr>
 
         </table>
@@ -294,16 +297,20 @@
                 <td colspan="5"></td>
 
 
-                <td style=" border-left: 2px solid; border-right: 2px solid;" colspan="3">Tanggal: ............................</td>
+                <td style=" border-left: 2px solid; border-right: 2px solid;" colspan="3">Tanggal:
+                    ............................</td>
                 <td></td>
             </tr>
             <tr class="italic">
 
-                <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid; border-left: 2px solid;">Sebesar</td>
+                <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid; border-left: 2px solid;">
+                    Sebesar</td>
                 <td class="sebesar" style="border-top: 2px solid; border-bottom: 2px solid;">:</td>
-                <td class="sebesar" style=" border-top: 2px solid; border-right: 2px solid; border-bottom: 2px solid;" colspan="2">{{ number_format($rincian->sebesar, 0, ',', '.') }},-</td>
+                <td class="sebesar" style=" border-top: 2px solid; border-right: 2px solid; border-bottom: 2px solid;"
+                    colspan="2">{{ number_format($rincian->sebesar, 0, ',', '.') }},-</td>
                 <td colspan="3"></td>
-                <td style=" border-left: 2px solid; border-right: 2px solid; border-bottom: 2px solid; padding-left: 60px;" colspan="3">Paraf: <br>&nbsp;</td>
+                <td style=" border-left: 2px solid; border-right: 2px solid; border-bottom: 2px solid; padding-left: 60px;"
+                    colspan="3">Paraf: <br>&nbsp;</td>
                 <td></td>
             </tr>
             <tr>
@@ -354,7 +361,9 @@
             </div>
             <div style="padding-top: 40px">
                 <p>&nbsp;</p>
-                <p>Rantau, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $rincian->bulan ?? '-' }} {{ now()->year }}</p>
+                <p>Rantau,
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $rincian->bulan ?? '-' }}
+                    {{ now()->year }}</p>
 
 
                 <p>Penerima,</p>

@@ -30,7 +30,7 @@ class SubKegiatanController extends Controller
 
             // Menampilkan semua SubKegiatan
             $subKegiatans = SubKegiatan::with(['kegiatan', 'bidang'])
-                ->paginate(10)
+                ->paginate(50)
                 ->through(function ($subKegiatan) {
                     // Menghitung anggaran realisasi untuk setiap sub kegiatan
                     $anggaranRealisasi = $subKegiatan->kodeRekenings()->sum('anggaran_awal');
@@ -55,7 +55,7 @@ class SubKegiatanController extends Controller
             // Menampilkan SubKegiatan berdasarkan bidang yang dimiliki user
             $subKegiatans = SubKegiatan::where('bidang_id', $user->bidang_id)
                 ->with(['kegiatan', 'bidang'])
-                ->paginate(10)
+                ->paginate(50)
                 ->through(function ($subKegiatan) {
                     // Menghitung anggaran realisasi untuk setiap sub kegiatan
                     $anggaranRealisasi = $subKegiatan->kodeRekenings()->sum('anggaran');

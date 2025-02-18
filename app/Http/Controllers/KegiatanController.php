@@ -25,7 +25,7 @@ class KegiatanController extends Controller
             $query->where('bidang_id', $user->bidang_id);
         }
 
-        $kegiatans = $query->paginate(10);
+        $kegiatans = $query->paginate(50);
 
         $kegiatans->setCollection(
             $kegiatans->getCollection()->map(function ($kegiatan) {

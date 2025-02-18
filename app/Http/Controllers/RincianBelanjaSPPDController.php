@@ -36,10 +36,11 @@ class RincianBelanjaSppdController extends Controller
 
     public function create()
     {
+        $user = auth()->user();
         $programs = Program::all();
         $kegiatans = Kegiatan::all();
         $sub_kegiatans = SubKegiatan::all();
-        $kode_rekenings = KodeRekening::all();
+        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
         $kepala_dinas = KepalaDinas::all();
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
@@ -121,11 +122,12 @@ class RincianBelanjaSppdController extends Controller
 
     public function edit($id)
     {
+        $user = auth()->user();
         $rincianSppd = RincianBelanjaSppd::findOrFail($id);
         $programs = Program::all();
         $kegiatans = Kegiatan::all();
         $sub_kegiatans = SubKegiatan::all();
-        $kode_rekenings = KodeRekening::all();
+        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
         $kepala_dinas = KepalaDinas::all();
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
