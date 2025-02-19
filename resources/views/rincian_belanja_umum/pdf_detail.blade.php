@@ -27,7 +27,7 @@
             text-align: center;
             font-size: 32px;
             text-decoration: underline;
-            margin: 20px 0;
+            margin: 10px 0;
         }
 
         /* Pengaturan untuk tabel */
@@ -165,61 +165,60 @@
 
 <body>
     <div class="container">
-        <table class="header" style="border-bottom: 2px solid black;">
+        <table class="header" style="border-collapse: collapse; width: 100%;">
             <tr>
-                <td style="width: 20%; font-weight: bold; " colspan="1">Urusan Pemerintahan</td>
-                <td style="width: 1%; font-weight: bold; " colspan="1"> : </td>
-                <td colspan="8"><strong> PEMERINTAHAN WAJIB YANG TIDAK BERKAITAN DENGAN PELAYANAN DASAR</strong></td>
+                <td style="width: 20%; font-weight: bold;">Urusan Pemerintahan</td>
+                <td style="width: 1%; font-weight: bold;">:</td>
+                <td colspan="8"><strong>PEMERINTAHAN WAJIB YANG TIDAK BERKAITAN DENGAN PELAYANAN DASAR</strong></td>
             </tr>
             <tr>
-                <td style=" font-weight: bold; ">Bidang Urusan</td>
-                <td style=" font-weight: bold; "> : </td>
+                <td style="font-weight: bold;">Bidang Urusan</td>
+                <td style="font-weight: bold;">:</td>
                 <td colspan="8"><strong>URUSAN PEMERINTAHAN BIDANG ADMINISTRASI KEPENDUDUKAN DAN PENCATATAN
                         SIPIL</strong></td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">Unit Organisasi</td>
-                <td style=" font-weight: bold; "> : </td>
+                <td style="font-weight: bold;">Unit Organisasi</td>
+                <td style="font-weight: bold;">:</td>
                 <td colspan="8"><strong>DINAS KEPENDUDUKAN & PENCATATAN SIPIL</strong></td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">Program</td>
-                <td style=" font-weight: bold; "> : </td>
+                <td style="font-weight: bold;">Program</td>
+                <td style="font-weight: bold;">:</td>
                 <td colspan="8">
                     {{ $rincian->program->nama ?? '2.12.01 PROGRAM PENUNJANG URUSAN PEMERINTAHAN DAERAH KABUPATEN/KOTA' }}
                 </td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">Kegiatan</td>
-                <td style=" font-weight: bold; "> : </td>
-                <td colspan="8">
-                    {{ $rincian->kegiatan->nama_kegiatan ?? '5.1.02.03 Belanja Pemeliharaan' }}
-                </td>
+                <td style="font-weight: bold;">Kegiatan</td>
+                <td style="font-weight: bold;">:</td>
+                <td colspan="8">{{ $rincian->kegiatan->nama_kegiatan ?? '5.1.02.03 Belanja Pemeliharaan' }}</td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">Sub Kegiatan</td>
-                <td style=" font-weight: bold; "> : </td>
-                <td colspan="8">
-                    {{ $rincian->subKegiatan->nama_sub_kegiatan ?? 'Tidak ada Data' }}
-                </td>
+                <td style="font-weight: bold;">Sub Kegiatan</td>
+                <td style="font-weight: bold;">:</td>
+                <td colspan="8">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? 'Tidak ada Data' }}</td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">Kode Rekening</td>
-                <td style=" font-weight: bold; "> : </td>
+                <td style="font-weight: bold;">Kode Rekening</td>
+                <td style="font-weight: bold;">:</td>
                 <td colspan="8">{{ $rincian->kodeRekening->nama_kode_rekening ?? 'Tidak ada Data' }}</td>
             </tr>
             <tr>
-                <td style="font-weight: bold; ">No. BKU</td>
-                <td style=" font-weight: bold; "> : </td>
-                <td colspan="8">
-                <td colspan="8">
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-                    /BK/Disdukcapil/{{ date('Y') }}
-                </td>
+                <td style="font-weight: bold; width: 20%;">No. BKU</td>
+                <td style="font-weight: bold; width: 2%;">:</td>
+                <td style="text-align: left;">
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;/BK/Disdukcapil/{{ date('Y') }}</td>
+            </tr>
 
+            <!-- Border bawah yang mencakup seluruh lebar tabel -->
+            <tr class="italic">
+                <td colspan="10" style="border-bottom: 2px solid black; width: 100%;"></td>
             </tr>
 
         </table>
+
+
         <h1>KUITANSI</h1>
 
         <table class=" section">
@@ -333,6 +332,7 @@
         <!-- Signature Section -->
         <div class=" signature">
             <div>
+
                 <p>Mengetahui & Menyetujui ;</p>
                 <p>KEPALA DINAS KEPENDUDUKAN & PENCATATAN SIPIL</p>
                 <p>KABUPATEN TAPIN</p>

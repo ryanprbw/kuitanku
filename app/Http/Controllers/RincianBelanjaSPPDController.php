@@ -17,22 +17,47 @@ use Illuminate\Http\Request;
 
 class RincianBelanjaSppdController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
 
+        // Handling the search query
+        $search = $request->input('search');
+
+        // Menghitung total anggaran yang digunakan
         $totalAnggaran = RincianBelanjaSppd::when($user->role !== 'superadmin', function ($query) use ($user) {
             $query->where('bidang_id', $user->bidang_id);
-        })->sum('sebesar');
+        })
+            ->when($search, function ($query) use ($search) {
+                $query->where('untuk_pengeluaran', 'like', '%' . $search . '%')
+                    ->orWhereHas('program', function ($query) use ($search) {
+                        $query->where('nama', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('kegiatan', function ($query) use ($search) {
+                        $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    });
+            })
+            ->sum('sebesar');
 
+        // Mengambil rincian belanja dengan relasi yang diperlukan
         $rincianSppd = RincianBelanjaSppd::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'kepalaDinas', 'pptk', 'bendahara', 'penerima'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
             })
-            ->paginate(10);
+            ->when($search, function ($query) use ($search) {
+                $query->where('untuk_pengeluaran', 'like', '%' . $search . '%')
+                    ->orWhereHas('program', function ($query) use ($search) {
+                        $query->where('nama', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('kegiatan', function ($query) use ($search) {
+                        $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    });
+            })
+            ->paginate(50);
 
-        return view('rincian_belanja_sppd.index', compact('rincianSppd', 'totalAnggaran'));
+        return view('rincian_belanja_sppd.index', compact('rincianSppd', 'totalAnggaran', 'search'));
     }
+
 
     public function create()
     {

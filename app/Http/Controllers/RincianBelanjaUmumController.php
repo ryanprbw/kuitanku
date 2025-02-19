@@ -16,14 +16,26 @@ use Illuminate\Http\Request;
 
 class RincianBelanjaUmumController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $user = auth()->user();
+
+        // Handling the search query
+        $search = $request->input('search');
 
         // Menghitung total anggaran yang digunakan
         $totalAnggaran = RincianBelanjaUmum::when($user->role !== 'superadmin', function ($query) use ($user) {
             $query->where('bidang_id', $user->bidang_id);
         })
+            ->when($search, function ($query) use ($search) {
+                $query->where('untuk_pengeluaran', 'like', '%' . $search . '%')
+                    ->orWhereHas('program', function ($query) use ($search) {
+                        $query->where('nama', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('kegiatan', function ($query) use ($search) {
+                        $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    });
+            })
             ->sum('sebesar');
 
         // Mengambil rincian belanja dengan relasi yang diperlukan
@@ -31,9 +43,18 @@ class RincianBelanjaUmumController extends Controller
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
             })
-            ->paginate(10);
+            ->when($search, function ($query) use ($search) {
+                $query->where('untuk_pengeluaran', 'like', '%' . $search . '%')
+                    ->orWhereHas('program', function ($query) use ($search) {
+                        $query->where('nama', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('kegiatan', function ($query) use ($search) {
+                        $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    });
+            })
+            ->paginate(50);
 
-        return view('rincian_belanja_umum.index', compact('rincianBelanja', 'totalAnggaran'));
+        return view('rincian_belanja_umum.index', compact('rincianBelanja', 'totalAnggaran', 'search'));
     }
 
 

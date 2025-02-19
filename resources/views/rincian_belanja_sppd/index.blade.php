@@ -21,7 +21,16 @@
                             Tambah Data
                         </a>
                     </div>
-
+                    <form method="GET" action="{{ route('rincian_belanja_sppd.index') }}" class="mb-4">
+                        <div class="flex items-center gap-2 mb-4">
+                            <input type="text" name="search" value="{{ $search ?? '' }}" placeholder="Search..."
+                                class="px-4 py-2 border rounded-md w-1/4" />
+                            <button type="submit"
+                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+                                Cari
+                            </button>
+                        </div>
+                    </form>
                     <!-- Tabel Data -->
                     <div class="overflow-x-auto">
                         <table class="text-xs text-gray-700 uppercase bg-gray-50  ">
@@ -47,7 +56,8 @@
                                         <td class="px-4 py-2">{{ $rincian->program->nama ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->kegiatan->nama_kegiatan ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
-                                        <td class="px-4 py-2">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? '-' }}</td>
+                                        <td class="px-4 py-2">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? '-' }}
+                                        </td>
                                         <td class="px-4 py-2">{{ $rincian->kodeRekening->nama_kode_rekening ?? '-' }}
                                         </td>
                                         <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}
