@@ -34,6 +34,10 @@ class RincianBelanjaUmumController extends Controller
                     })
                     ->orWhereHas('kegiatan', function ($query) use ($search) {
                         $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    })
+                    // Pencarian berdasarkan nama bidang
+                    ->orWhereHas('bidang', function ($query) use ($search) {
+                        $query->where('nama_bidang', 'like', '%' . $search . '%');
                     });
             })
             ->sum('sebesar');
@@ -50,12 +54,17 @@ class RincianBelanjaUmumController extends Controller
                     })
                     ->orWhereHas('kegiatan', function ($query) use ($search) {
                         $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    })
+                    // Pencarian berdasarkan nama bidang
+                    ->orWhereHas('bidang', function ($query) use ($search) {
+                        $query->where('nama_bidang', 'like', '%' . $search . '%');
                     });
             })
             ->paginate(50);
 
         return view('rincian_belanja_umum.index', compact('rincianBelanja', 'totalAnggaran', 'search'));
     }
+
 
 
     public function create()

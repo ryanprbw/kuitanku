@@ -21,27 +21,12 @@ class KodeRekeningController extends Controller
         $search = $request->get('search', ''); // Menangkap input pencarian
         $perPage = $request->get('perPage', 20); // Menangkap nilai perPage (default 20)
 
-        // 🔹 Hitung total anggaran dari kode rekening (berdasarkan role user)
-        $totalAnggaran = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
-            $query->where(function ($q) use ($user) {
-                // Memeriksa bidang_id di KodeRekening atau subKegiatan
-                $q->where('bidang_id', $user->bidang_id)
-                    ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
-                        $subQuery->where('bidang_id', $user->bidang_id);
-                    });
-            });
-        })->sum('anggaran');
+        // 🔹 Hitung total anggaran dari kode rekening berdasarkan bidang_id
+        $totalAnggaran = KodeRekening::where('bidang_id', $user->bidang_id)
+            ->sum('anggaran');
 
-        // 🔹 Hitung total realisasi anggaran
-        $totalRealisasi = KodeRekening::when($user->role !== 'superadmin', function ($query) use ($user) {
-            $query->where(function ($q) use ($user) {
-                // Memeriksa bidang_id di KodeRekening atau subKegiatan
-                $q->where('bidang_id', $user->bidang_id)
-                    ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
-                        $subQuery->where('bidang_id', $user->bidang_id);
-                    });
-            });
-        })
+        // 🔹 Hitung total realisasi anggaran (kode rekening yang terkait dengan rincian belanja umum dan sppd)
+        $totalRealisasi = KodeRekening::where('bidang_id', $user->bidang_id)
             ->withSum('rincianBelanjaUmum', 'anggaran')
             ->withSum('rincianBelanjaSppd', 'anggaran')
             ->get()
@@ -49,41 +34,24 @@ class KodeRekeningController extends Controller
                 return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
             });
 
-        // 🔹 Ambil semua kode rekening dengan pencarian dan pagination berdasarkan perPage
-        $kodeRekenings = KodeRekening::with([
-            'subKegiatan',
-            'rincianBelanjaUmum',
-            'rincianBelanjaSppd'
-        ])
-            ->when($user->role !== 'superadmin', function ($query) use ($user) {
-                $query->where(function ($q) use ($user) {
-                    // Memeriksa bidang_id di KodeRekening atau subKegiatan
-                    $q->where('bidang_id', $user->bidang_id)
-                        ->orWhereHas('subKegiatan', function ($subQuery) use ($user) {
-                        $subQuery->where('bidang_id', $user->bidang_id);
-                    });
-                });
-            })
-            ->when($search, function ($query) use ($search) {
-                // Menambahkan kondisi pencarian berdasarkan nama kode rekening dan sub kegiatan
-                $query->where('nama_kode_rekening', 'like', '%' . $search . '%')
-                    ->orWhereHas('subKegiatan', function ($q) use ($search) {
-                    $q->where('nama_sub_kegiatan', 'like', '%' . $search . '%');
-                });
-            })
+        // 🔹 Ambil semua kode rekening yang terkait dengan bidang_id pengguna, dengan pencarian dan pagination
+        $kodeRekenings = KodeRekening::when($search, function ($query) use ($search) {
+            // Menambahkan kondisi pencarian berdasarkan nama kode rekening
+            $query->where('nama_kode_rekening', 'like', '%' . $search . '%');
+        })
+            ->where('bidang_id', $user->bidang_id) // Filter berdasarkan bidang_id user
+            ->with([
+                'subKegiatan',
+                'rincianBelanjaUmum',
+                'rincianBelanjaSppd'
+            ])
             ->withSum('rincianBelanjaUmum', 'anggaran')
             ->withSum('rincianBelanjaSppd', 'anggaran')
-            ->paginate($perPage)
-            ->through(function ($kodeRekening) {
-                // **Hitung total realisasi langsung**
-                $kodeRekening->anggaran_realisasi = $kodeRekening->rincian_belanja_umum_sum_anggaran +
-                    $kodeRekening->rincian_belanja_sppd_sum_anggaran;
-
-                return $kodeRekening;
-            });
+            ->paginate($perPage);
 
         return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran', 'totalRealisasi'));
     }
+
 
 
 

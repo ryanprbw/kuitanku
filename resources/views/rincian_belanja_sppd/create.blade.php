@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Tambah Rincian Belanja Umum') }}
+            {{ __('Tambah Rincian Belanja SPPD') }}
         </h2>
     </x-slot>
 
@@ -9,7 +9,7 @@
 
     <div class="container mx-auto py-8">
         <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-6">Tambah Rincian Belanja Umum</h2>
+            <h2 class="text-2xl font-semibold mb-6">Tambah Rincian Belanja SPPD</h2>
 
             @if ($errors->any())
                 <div class="mb-4 p-4 text-red-800 bg-red-200 rounded-lg">
@@ -69,7 +69,11 @@
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="" selected>Pilih Kode Rekening</option>
                         @foreach ($kode_rekenings as $kode_rekening)
-                            <option value="{{ $kode_rekening->id }}">{{ $kode_rekening->nama_kode_rekening }}</option>
+                            <option value="{{ $kode_rekening->id }}">
+                                {{ $kode_rekening->nama_kode_rekening }} | Bidang:
+                                {{ $kode_rekening->bidang->nama_bidang ?? 'Tidak Ada Bidang' }} | Anggaran : Rp.
+                                {{ number_format($kode_rekening->anggaran, 0, ',', '.') }}
+                            </option>
                         @endforeach
                     </select>
                 </div>

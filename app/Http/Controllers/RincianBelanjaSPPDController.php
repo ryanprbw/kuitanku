@@ -35,28 +35,58 @@ class RincianBelanjaSppdController extends Controller
                     })
                     ->orWhereHas('kegiatan', function ($query) use ($search) {
                         $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    })
+                    // Pencarian berdasarkan nama bidang
+                    ->orWhereHas('bidang', function ($query) use ($search) {
+                        $query->where('nama_bidang', 'like', '%' . $search . '%');
                     });
             })
             ->sum('sebesar');
 
         // Mengambil rincian belanja dengan relasi yang diperlukan
-        $rincianSppd = RincianBelanjaSppd::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'kepalaDinas', 'pptk', 'bendahara', 'penerima'])
+        $rincianSppd = RincianBelanjaSppd::with([
+            'program',
+            'kegiatan',
+            'subKegiatan',
+            'kodeRekening',
+            'kepalaDinas',
+            'pptk',
+            'bendahara',
+            'penerima'
+        ])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
             })
-            ->when($search, function ($query) use ($search) {
+            ->when($search, function ($query) use ($search, $user) {
                 $query->where('untuk_pengeluaran', 'like', '%' . $search . '%')
                     ->orWhereHas('program', function ($query) use ($search) {
                         $query->where('nama', 'like', '%' . $search . '%');
                     })
                     ->orWhereHas('kegiatan', function ($query) use ($search) {
                         $query->where('nama_kegiatan', 'like', '%' . $search . '%');
+                    })
+                    // Pencarian berdasarkan nama bidang
+                    ->orWhereHas('bidang', function ($query) use ($search) {
+                        $query->where('nama_bidang', 'like', '%' . $search . '%');
+                    })
+                    ->orWhereHas('kodeRekening', function ($query) use ($user) {
+                        $query->where('bidang_id', $user->bidang_id);
+                    })
+                    ->orWhereHas('subKegiatan', function ($query) use ($user) {
+                        $query->where('bidang_id', $user->bidang_id);
                     });
+            })
+            ->whereHas('kodeRekening', function ($query) use ($user) {
+                $query->where('bidang_id', $user->bidang_id);
+            })
+            ->whereHas('subKegiatan', function ($query) use ($user) {
+                $query->where('bidang_id', $user->bidang_id);
             })
             ->paginate(50);
 
         return view('rincian_belanja_sppd.index', compact('rincianSppd', 'totalAnggaran', 'search'));
     }
+
 
 
     public function create()

@@ -5,8 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="">
+        <div class="w-full mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 bg-white border-b border-gray-200">
 
@@ -38,13 +38,14 @@
                             <thead>
                                 <tr>
                                     <th class="px-4 py-2 text-left text-gray-700">No.</th>
-                                    <th class="px-4 py-2 text-left text-gray-700">Nama Rincian Belanja Umum</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Program</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Kegiatan</th>
-                                    <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Sub Kegiatan</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Kode Rekening</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Nama Rincian Belanja Umum</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Jumlah (Rp)</th>
                                     <th class="px-4 py-2 text-left text-gray-700">Dibuat pada :</th>
+                                    <th class="px-4 py-2 text-left text-gray-700">Bidang</th>
                                     <th class="px-4 py-2 text-center text-gray-700">Aksi</th>
                                 </tr>
                             </thead>
@@ -52,15 +53,16 @@
                                 @forelse ($rincianBelanja as $rincian)
                                     <tr>
                                         <td class="px-4 py-2">{{ $loop->iteration }}</td>
-                                        <td class="px-4 py-2">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->program->nama ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->kegiatan->nama_kegiatan ?? '-' }}</td>
-                                        <td class="px-4 py-2">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->subKegiatan->nama_sub_kegiatan ?? '-' }}
-                                        </td>
+                                        <td class="px-4 py-2">{{ $rincian->kodeRekening->nama_kode_rekening ?? '-' }}
+                                        <td class="px-4 py-2">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}
                                         </td>
                                         <td class="px-4 py-2">{{ $rincian->subKegiatan->created_at ?? '-' }}</td>
+                                        <td class="px-4 py-2">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
+                                        </td>
                                         <td class="px-4 py-2 text-center">
                                             <a href="{{ route('rincian_belanja_umum.pdf.detail', $rincian->id) }}"
                                                 class="text-yellow-500 hover:underline">Cetak Kuitansi</a>
