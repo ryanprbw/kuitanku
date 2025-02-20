@@ -20,6 +20,7 @@
                             <thead
                                 class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-800 dark:text-gray-400 border-b border-gray-300">
                                 <tr>
+                                    <th class="px-4 py-2 text-left text-gray-700">No.</th>
                                     <th class="px-6 py-3">Program</th>
                                     <th class="px-6 py-3">Kegiatan</th>
                                     <th class="px-6 py-3">Sub Kegiatan</th>
@@ -30,12 +31,15 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @php $counter = 1; @endphp
                                 @foreach ($rincianBelanja as $rincianGroup)
                                     @foreach ($rincianGroup as $index => $rincian)
                                         <tr
                                             class="bg-white border-b dark:bg-gray-800 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600">
                                             @if ($index == 0)
-                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4 ">
+                                                <td class="px-4 py-2">{{ $counter++ }}</td>
+
+                                                <td rowspan="{{ $rincianGroup->count() }}" class="p-4">
                                                     {{ $rincian->program->nama ?? 'Tidak ada Program' }}</td>
                                                 <td rowspan="{{ $rincianGroup->count() }}" class="p-4">
                                                     {{ $rincian->kegiatan->nama_kegiatan ?? 'Tidak ada Kegiatan' }}</td>
@@ -45,12 +49,13 @@
                                                 <td rowspan="{{ $rincianGroup->count() }}" class="p-4">
                                                     {{ $rincian->kodeRekening->nama_kode_rekening ?? 'Tidak ada Kode Rekening' }}
                                                 </td>
-                                                <td rowspan="{{ $rincianGroup->count() }}"
+                                                <td rowspan="{{ $rincianGroup->count() }} "
                                                     class="p-4 border-r dark:border-gray-700">
                                                     {{ $rincian->bidang->nama_bidang ?? 'Tidak ada Bidang' }}</td>
                                             @endif
                                             <td class="p-4">{{ $rincian->untuk_pengeluaran }}</td>
                                             <td class="p-4">Rp. {{ number_format($rincian->anggaran, 0, ',', '.') }}
+                                            </td>
                                         </tr>
                                     @endforeach
                                 @endforeach

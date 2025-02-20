@@ -53,7 +53,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rincian-belanja-umum/{id}/pdf', [RincianBelanjaUmumController::class, 'exportDetailPdf'])->name('rincian_belanja_umum.pdf.detail');
     Route::resource('rincian_belanja_sppd', RincianBelanjaSppdController::class);
     Route::get('/rincian-belanja-sppd/{id}/pdf', [RincianBelanjaSppdController::class, 'exportDetailPdf'])->name('rincian_belanja_sppd.pdf.detail');
+
     Route::get('/laporan', [LaporanController::class, 'index'])->name('laporan.index');
+    Route::get('/laporan/cetak', [LaporanController::class, 'cetak'])->name('laporan.cetak');
+
     Route::get('/laporansppd', [LaporanSppdController::class, 'index'])->name('laporan_sppd.index');
 
 
