@@ -22,24 +22,40 @@ class KodeRekeningController extends Controller
         $perPage = $request->get('perPage', 20); // Menangkap nilai perPage (default 20)
 
         // 🔹 Hitung total anggaran dari kode rekening berdasarkan bidang_id
-        $totalAnggaran = KodeRekening::where('bidang_id', $user->bidang_id)
-            ->sum('anggaran');
+        if ($user->role == 'superadmin') {
+            $totalAnggaran = KodeRekening::sum('anggaran'); // Superadmin bisa melihat semua kode rekening
+        } else {
+            $totalAnggaran = KodeRekening::where('bidang_id', $user->bidang_id)
+                ->sum('anggaran');
+        }
 
         // 🔹 Hitung total realisasi anggaran (kode rekening yang terkait dengan rincian belanja umum dan sppd)
-        $totalRealisasi = KodeRekening::where('bidang_id', $user->bidang_id)
-            ->withSum('rincianBelanjaUmum', 'anggaran')
-            ->withSum('rincianBelanjaSppd', 'anggaran')
-            ->get()
-            ->sum(function ($kodeRekening) {
-                return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
-            });
+        if ($user->role == 'superadmin') {
+            $totalRealisasi = KodeRekening::withSum('rincianBelanjaUmum', 'anggaran')
+                ->withSum('rincianBelanjaSppd', 'anggaran')
+                ->get()
+                ->sum(function ($kodeRekening) {
+                    return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
+                });
+        } else {
+            $totalRealisasi = KodeRekening::where('bidang_id', $user->bidang_id)
+                ->withSum('rincianBelanjaUmum', 'anggaran')
+                ->withSum('rincianBelanjaSppd', 'anggaran')
+                ->get()
+                ->sum(function ($kodeRekening) {
+                    return $kodeRekening->rincian_belanja_umum_sum_anggaran + $kodeRekening->rincian_belanja_sppd_sum_anggaran;
+                });
+        }
 
         // 🔹 Ambil semua kode rekening yang terkait dengan bidang_id pengguna, dengan pencarian dan pagination
         $kodeRekenings = KodeRekening::when($search, function ($query) use ($search) {
             // Menambahkan kondisi pencarian berdasarkan nama kode rekening
             $query->where('nama_kode_rekening', 'like', '%' . $search . '%');
         })
-            ->where('bidang_id', $user->bidang_id) // Filter berdasarkan bidang_id user
+            ->when($user->role != 'superadmin', function ($query) use ($user) {
+                // Filter berdasarkan bidang_id user jika bukan superadmin
+                $query->where('bidang_id', $user->bidang_id);
+            })
             ->with([
                 'subKegiatan',
                 'rincianBelanjaUmum',
@@ -51,6 +67,7 @@ class KodeRekeningController extends Controller
 
         return view('kode_rekening.index', compact('kodeRekenings', 'totalAnggaran', 'totalRealisasi'));
     }
+
 
 
 
