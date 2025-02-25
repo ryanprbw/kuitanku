@@ -5,7 +5,7 @@
         </h2>
     </x-slot>
 
-    <div class="py-12">
+    <div>
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
             <!-- Flowbite Card Component -->
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
@@ -30,11 +30,18 @@
 
                             <!-- Filter Per Rentang Bulan -->
                             <div>
-                                <label for="bulan" class="block text-sm font-medium text-gray-700">Range
-                                    Bulan</label>
-                                <input type="month" name="bulan" id="bulan"
-                                    class="mt-1 block w-full p-2 border rounded-md" value="{{ request('bulan') }}">
+                                <label for="start_date" class="block text-sm font-medium text-gray-700">Tanggal
+                                    Mulai</label>
+                                <input type="date" name="start_date" id="start_date"
+                                    class="mt-1 block w-full p-2 border rounded-md" value="{{ request('start_date') }}">
                             </div>
+                            <div>
+                                <label for="end_date" class="block text-sm font-medium text-gray-700">Tanggal
+                                    Selesai</label>
+                                <input type="date" name="end_date" id="end_date"
+                                    class="mt-1 block w-full p-2 border rounded-md" value="{{ request('end_date') }}">
+                            </div>
+
 
                             <!-- Submit Filter -->
                             <div>

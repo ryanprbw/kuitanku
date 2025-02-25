@@ -1,14 +1,21 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
+        <h1 class="font-semibold text-xl text-gray-800 leading-tight animate-pulse">
             {{ __('Tambah Rincian Belanja Umum') }}
-        </h2>
+        </h1>
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mt-2">
+            <p class="font-bold animate-pulse uppercase text-red-600">Perhatian:</p>
+            <p>Pastikan semua inputan Anda benar pada saat pembuatan Kwitansi / Rincian Belanja Umum sesuai dengan DPA
+                masing-masing Bidang.</p>
+            <small class="text-red-600 animate-pulse">Kesalahan penginputan tidak dapat ditolerir.</small>
+        </div>
     </x-slot>
 
 
 
-    <div class="container mx-auto py-8">
-        <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+
+    <div class="container ">
+        <div class=" bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold mb-6">Tambah Rincian Belanja Umum</h2>
 
             @if ($errors->any())
@@ -184,7 +191,9 @@
                         Bulan</label>
                     <select id="bulan" name="bulan"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-                        <option value="" disabled selected>Pilih Bulan</option>
+                        <option value=""
+                            {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == '' ? 'selected' : '' }}
+                            disabled>Pilih Bulan</option>
                         <option value="Januari"
                             {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == 'Januari' ? 'selected' : '' }}>
                             Januari</option>
@@ -221,8 +230,13 @@
                         <option value="Desember"
                             {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == 'Desember' ? 'selected' : '' }}>
                             Desember</option>
+                        <option class="text-red-600 bold animate-pulse" value=""
+                            {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == '' ? 'selected' : '' }}>
+                            Kosongkan Bulan</option>
+
                     </select>
                 </div>
+
 
                 {{-- Penerima --}}
                 <div>

@@ -13,11 +13,12 @@ class LaporanController extends Controller
     {
         $user = auth()->user();
 
-        // Menangani Filter Berdasarkan Bidang dan Bulan
+        // Menangani Filter Berdasarkan Bidang, Tanggal Mulai dan Tanggal Selesai
         $bidangId = $request->input('bidang');
-        $bulan = $request->input('bulan');
+        $startDate = $request->input('start_date'); // Tanggal mulai
+        $endDate = $request->input('end_date'); // Tanggal selesai
 
-        // Filter berdasarkan bidang dan bulan (range bulan berdasarkan created_at)
+        // Filter berdasarkan bidang dan tanggal (range tanggal berdasarkan created_at)
         $rincianBelanja = RincianBelanjaUmum::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'bidang'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
                 $query->where('bidang_id', $user->bidang_id);
@@ -25,9 +26,14 @@ class LaporanController extends Controller
             ->when($bidangId, function ($query) use ($bidangId) {
                 $query->where('bidang_id', $bidangId);
             })
-            ->when($bulan, function ($query) use ($bulan) {
-                $query->whereYear('created_at', substr($bulan, 0, 4))
-                    ->whereMonth('created_at', substr($bulan, 5, 2));
+            ->when($startDate && $endDate, function ($query) use ($startDate, $endDate) {
+                $query->whereBetween('created_at', [$startDate, $endDate]); // Rentang tanggal
+            })
+            ->when($startDate && !$endDate, function ($query) use ($startDate) {
+                $query->whereDate('created_at', '>=', $startDate); // Hanya tanggal mulai
+            })
+            ->when(!$startDate && $endDate, function ($query) use ($endDate) {
+                $query->whereDate('created_at', '<=', $endDate); // Hanya tanggal selesai
             })
             ->get()
             ->groupBy(function ($item) {
@@ -44,6 +50,7 @@ class LaporanController extends Controller
 
         return view('laporan.index', compact('rincianBelanja', 'totalAnggaran', 'bidangOptions'));
     }
+
 
     // Method untuk cetak laporan
     public function cetak(Request $request)

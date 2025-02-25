@@ -5,8 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="container mx-auto py-8">
-        <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div class="container ">
+        <div class=" bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold mb-6">Edit Rincian Belanja SPPD</h2>
 
             @if ($errors->any())
@@ -214,6 +214,10 @@
                         <option value="Desember"
                             {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Desember' ? 'selected' : '' }}>Desember
                         </option>
+                        <option class="text-red-600 bold animate-pulse font-bold" value=""
+                            {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == '' ? 'selected' : '' }}>
+                            Kosongkan Bulan</option>
+
                     </select>
                 </div>
 

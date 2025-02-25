@@ -115,7 +115,7 @@ class RincianBelanjaSppdController extends Controller
             'tanggal_st' => 'required|date',
             'nomor_spd' => 'required|string',
             'tanggal_spd' => 'required|date',
-            'bulan' => 'required|string|max:20',
+            'bulan' => 'nullable|string|max:20',
             'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
             'pptk_id' => 'required|exists:pptks,id',
             'bendahara_id' => 'required|exists:bendaharas,id',
@@ -125,7 +125,7 @@ class RincianBelanjaSppdController extends Controller
         $data = $request->all();
         $data['bidang_id'] = auth()->user()->bidang_id;
         $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
-
+        $data['bulan'] = $request->bulan ?: null;
         // Mencari Kode Rekening yang terkait
         $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
 
@@ -195,45 +195,64 @@ class RincianBelanjaSppdController extends Controller
         try {
             $rincianSppd = RincianBelanjaSppd::findOrFail($id);
 
+            // Validasi input
             $request->validate([
                 'program_id' => 'required|exists:programs,id',
                 'kegiatan_id' => 'required|exists:kegiatans,id',
                 'sub_kegiatan_id' => 'required|exists:sub_kegiatans,id',
                 'kode_rekening_id' => 'required|exists:kode_rekenings,id',
                 'sebesar' => 'required|numeric|min:0',
+                'untuk_pengeluaran' => 'required|string|max:255',
+                'dpp' => 'nullable|numeric|min:0',
+                'nomor_st' => 'required|string',
+                'tanggal_st' => 'required|date',
+                'nomor_spd' => 'required|string',
+                'tanggal_spd' => 'required|date',
+                'bulan' => 'nullable|string|max:20',
+                'kepala_dinas_id' => 'required|exists:kepala_dinas,id',
+                'pptk_id' => 'required|exists:pptks,id',
+                'bendahara_id' => 'required|exists:bendaharas,id',
+                'penerima_id' => 'required|exists:pegawais,id',
             ]);
 
+            // Ambil semua data yang akan diupdate
             $data = $request->all();
+            $data['bidang_id'] = auth()->user()->bidang_id;
             $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
-
+            $data['bulan'] = $request->bulan ?: null;
             // Ambil kode rekening terkait
             $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
             $selisih = $rincianSppd->sebesar - $request->sebesar;
 
+            // Mengelola perubahan anggaran
             if ($selisih > 0) {
                 // Jika anggaran lama lebih besar, kembalikan selisih ke kode rekening
                 $kodeRekening->anggaran += $selisih;
-            } elseif ($kodeRekening->anggaran < abs($selisih)) {
-                // Jika anggaran baru lebih besar tetapi kode rekening tidak cukup, batalkan update
-                return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
-            } else {
-                // Jika anggaran baru lebih besar, kurangi kode rekening
+            } elseif ($selisih < 0) {
+                // Jika anggaran baru lebih besar, cek apakah kode rekening mencukupi
+                if ($kodeRekening->anggaran < abs($selisih)) {
+                    return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
+                }
+                // Jika cukup, kurangi kode rekening
                 $kodeRekening->anggaran -= abs($selisih);
             }
 
-            // Simpan perubahan anggaran
+            // Simpan perubahan anggaran pada kode rekening
             $kodeRekening->save();
 
             // Update rincian belanja
             $rincianSppd->update($data);
 
+            // Commit transaksi jika semuanya berhasil
             DB::commit();
             return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil diperbarui.');
         } catch (\Throwable $e) {
+            // Rollback transaksi jika ada kesalahan
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
     }
+
 
 
     public function destroy($id)

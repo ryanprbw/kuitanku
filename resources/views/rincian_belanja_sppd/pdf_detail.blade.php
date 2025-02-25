@@ -9,7 +9,7 @@
         /* Resetting margin dan padding global untuk seluruh body */
         body {
             font-family: Arial, 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
-            font-size: 12px;
+            font-size: 11px;
             margin: 0;
             padding: 0;
         }
@@ -328,8 +328,11 @@
             <div style="padding-top: 40px">
                 <p>&nbsp;</p>
                 <p>Rantau,
-                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ $rincianSppd->bulan ?? '-' }}
-                    {{ now()->year }}</p>
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {{ $rincianSppd->bulan ?: '....................' }}
+                    {{ now()->year }}
+                </p>
+
 
 
                 <p>Penerima,</p>

@@ -5,8 +5,8 @@
         </h2>
     </x-slot>
 
-    <div class="container mx-auto py-8">
-        <div class="max-w-4xl mx-auto bg-white p-6 rounded-lg shadow-md">
+    <div class="container ">
+        <div class=" bg-white p-6 rounded-lg shadow-md">
             <h2 class="text-2xl font-semibold mb-6">Edit Rincian Belanja Umum</h2>
 
             @if ($errors->any())
@@ -147,76 +147,111 @@
                 <div>
                     <label for="kepala_dinas_id" class="block mb-2 text-sm font-medium text-gray-700">Kepala
                         Dinas</label>
-                        <select id="kepala_dinas_id" name="kepala_dinas_id" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-                            <option value="">Pilih Kepala Dinas</option>
-                            @foreach ($kepala_dinas as $dinas)
-                                <option value="{{ $dinas->id }}" {{ old('kepala_dinas_id', $rincianBelanja->kepala_dinas_id) == $dinas->id ? 'selected' : '' }}>
-                                    {{ $dinas->nama }}
-                                </option>
-                            @endforeach
-                        </select>
-                        
+                    <select id="kepala_dinas_id" name="kepala_dinas_id"
+                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                        <option value="">Pilih Kepala Dinas</option>
+                        @foreach ($kepala_dinas as $dinas)
+                            <option value="{{ $dinas->id }}"
+                                {{ old('kepala_dinas_id', $rincianBelanja->kepala_dinas_id) == $dinas->id ? 'selected' : '' }}>
+                                {{ $dinas->nama }}
+                            </option>
+                        @endforeach
+                    </select>
+
                 </div>
 
                 {{-- PPTK --}}
                 <div>
                     <label for="pptk_id" class="block mb-2 text-sm font-medium text-gray-700">PPTK</label>
-                    <select id="pptk_id" name="pptk_id" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                    <select id="pptk_id" name="pptk_id"
+                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="">Pilih PPTK</option>
                         @foreach ($pptks as $pptk)
-                            <option value="{{ $pptk->id }}" {{ old('pptk_id', $rincianBelanja->pptk_id) == $pptk->id ? 'selected' : '' }}>
+                            <option value="{{ $pptk->id }}"
+                                {{ old('pptk_id', $rincianBelanja->pptk_id) == $pptk->id ? 'selected' : '' }}>
                                 {{ $pptk->nama }}
                             </option>
                         @endforeach
                     </select>
-                    
+
                 </div>
 
                 {{-- Bendahara --}}
                 <div>
                     <label for="bendahara_id" class="block mb-2 text-sm font-medium text-gray-700">Bendahara</label>
-                    <select id="bendahara_id" name="bendahara_id" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                    <select id="bendahara_id" name="bendahara_id"
+                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="">Pilih Bendahara</option>
                         @foreach ($bendaharas as $bendahara)
-                            <option value="{{ $bendahara->id }}" {{ old('bendahara_id', $rincianBelanja->bendahara_id) == $bendahara->id ? 'selected' : '' }}>
+                            <option value="{{ $bendahara->id }}"
+                                {{ old('bendahara_id', $rincianBelanja->bendahara_id) == $bendahara->id ? 'selected' : '' }}>
                                 {{ $bendahara->nama }}
                             </option>
                         @endforeach
                     </select>
-                    
+
                 </div>
                 <div>
-                    <label for="bulan" class="block mb-2 text-sm font-medium text-gray-700">Diterima pada Bulan</label>
-                    <select id="bulan" name="bulan" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                    <label for="bulan" class="block mb-2 text-sm font-medium text-gray-700">Diterima pada
+                        Bulan</label>
+                    <select id="bulan" name="bulan"
+                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="" disabled selected>Pilih Bulan</option>
-                        <option value="Januari" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Januari' ? 'selected' : '' }}>Januari</option>
-                        <option value="Februari" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Februari' ? 'selected' : '' }}>Februari</option>
-                        <option value="Maret" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Maret' ? 'selected' : '' }}>Maret</option>
-                        <option value="April" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'April' ? 'selected' : '' }}>April</option>
-                        <option value="Mei" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Mei' ? 'selected' : '' }}>Mei</option>
-                        <option value="Juni" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Juni' ? 'selected' : '' }}>Juni</option>
-                        <option value="Juli" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Juli' ? 'selected' : '' }}>Juli</option>
-                        <option value="Agustus" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Agustus' ? 'selected' : '' }}>Agustus</option>
-                        <option value="September" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'September' ? 'selected' : '' }}>September</option>
-                        <option value="Oktober" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Oktober' ? 'selected' : '' }}>Oktober</option>
-                        <option value="November" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'November' ? 'selected' : '' }}>November</option>
-                        <option value="Desember" {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Desember' ? 'selected' : '' }}>Desember</option>
+                        <option value="Januari"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Januari' ? 'selected' : '' }}>Januari
+                        </option>
+                        <option value="Februari"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Februari' ? 'selected' : '' }}>Februari
+                        </option>
+                        <option value="Maret"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Maret' ? 'selected' : '' }}>Maret
+                        </option>
+                        <option value="April"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'April' ? 'selected' : '' }}>April
+                        </option>
+                        <option value="Mei"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Mei' ? 'selected' : '' }}>Mei</option>
+                        <option value="Juni"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Juni' ? 'selected' : '' }}>Juni</option>
+                        <option value="Juli"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Juli' ? 'selected' : '' }}>Juli</option>
+                        <option value="Agustus"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Agustus' ? 'selected' : '' }}>Agustus
+                        </option>
+                        <option value="September"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'September' ? 'selected' : '' }}>September
+                        </option>
+                        <option value="Oktober"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Oktober' ? 'selected' : '' }}>Oktober
+                        </option>
+                        <option value="November"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'November' ? 'selected' : '' }}>November
+                        </option>
+                        <option value="Desember"
+                            {{ old('bulan', $rincianBelanja->bulan ?? '') == 'Desember' ? 'selected' : '' }}>Desember
+                        </option>
+                        <option class="text-red-600 bold animate-pulse" value=""
+                            {{ old('bulan', isset($rincianBelanja) ? $rincianBelanja->bulan : '') == '' ? 'selected' : '' }}>
+                            Kosongkan Bulan</option>
+
                     </select>
                 </div>
-                
+
 
                 {{-- Penerima --}}
                 <div>
                     <label for="penerima_id" class="block mb-2 text-sm font-medium text-gray-700">Penerima</label>
-                    <select id="penerima_id" name="penerima_id" class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                    <select id="penerima_id" name="penerima_id"
+                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="">Pilih Penerima</option>
                         @foreach ($pegawais as $pegawai)
-                            <option value="{{ $pegawai->id }}" {{ old('penerima_id', $rincianBelanja->penerima_id) == $pegawai->id ? 'selected' : '' }}>
+                            <option value="{{ $pegawai->id }}"
+                                {{ old('penerima_id', $rincianBelanja->penerima_id) == $pegawai->id ? 'selected' : '' }}>
                                 {{ $pegawai->nama }}
                             </option>
                         @endforeach
                     </select>
-                    
+
                 </div>
 
 
