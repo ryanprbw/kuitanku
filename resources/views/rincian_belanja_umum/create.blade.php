@@ -104,9 +104,11 @@
 
                 {{-- Untuk Pengeluaran --}}
                 <div>
-                    <label for="untuk_pengeluaran" class="block mb-2 text-sm font-medium text-gray-700">Untuk
-                        Pengeluaran</label>
-                    <textarea id="untuk_pengeluaran" name="untuk_pengeluaran" rows="3"
+                    <label for="untuk_pengeluaran" class="block mb-2 text-sm font-medium text-gray-700">
+                        Untuk Pengeluaran
+                    </label>
+                    <p id="charCount" class="text-sm text-red-500 mt-1 animate-pulse">Batas Karakter 255</p>
+                    <textarea id="untuk_pengeluaran" name="untuk_pengeluaran" rows="3" maxlength="255"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200"
                         placeholder="Masukkan deskripsi pengeluaran"></textarea>
                 </div>
@@ -320,6 +322,25 @@
         $('#kode_rekening_id').select2({
             placeholder: "Pilih Kode Rekening", // Placeholder saat dropdown kosong
             allowClear: true // Menambahkan opsi untuk menghapus pilihan
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const textarea = document.getElementById("untuk_pengeluaran");
+        const charCount = document.getElementById("charCount");
+        const maxChars = 255;
+
+        textarea.addEventListener("input", function() {
+            const remaining = maxChars - textarea.value.length;
+            charCount.textContent = remaining + "   lagi karakternya yang tersisa  yang Mulia . . .";
+
+            // Tambahkan efek peringatan jika hampir penuh
+            if (remaining <= 20) {
+                charCount.classList.add("text-red-500");
+            } else {
+                charCount.classList.remove("text-red-500");
+            }
         });
     });
 </script>
