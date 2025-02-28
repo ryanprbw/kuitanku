@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bendahara;
+use App\Models\KepalaDinas;
 use App\Models\RincianBelanjaUmum;
 use App\Models\Bidang; // Model Bidang
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
+use function React\Promise\all;
 
 class LaporanController extends Controller
 {
@@ -64,6 +67,9 @@ class LaporanController extends Controller
         $bidangId = $request->input('bidang');
         $startDate = $request->input('start_date');
         $endDate = $request->input('end_date');
+        $kadis = KepalaDinas::first(); // Ambil satu data kepala dinas
+        $bendahara = Bendahara::first(); // Ambil satu data bendahara
+
 
         $query = RincianBelanjaUmum::with(['program', 'kegiatan', 'subKegiatan', 'kodeRekening', 'bidang'])
             ->when($user->role !== 'superadmin', function ($query) use ($user) {
@@ -85,7 +91,7 @@ class LaporanController extends Controller
 
         $totalAnggaran = $query->sum('anggaran');
 
-        $pdf = Pdf::loadView('laporan.cetak', compact('rincianBelanja', 'totalAnggaran', 'startDate', 'endDate'))
+        $pdf = Pdf::loadView('laporan.cetak', compact('rincianBelanja', 'totalAnggaran', 'startDate', 'endDate', 'kadis', 'bendahara'))
             ->setPaper([0, 0, 330, 210], 'landscape')
             ->set_option('isHtml5ParserEnabled', true)
             ->set_option('isPhpEnabled', true)

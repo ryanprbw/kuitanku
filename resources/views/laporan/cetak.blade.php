@@ -50,7 +50,7 @@
 
         .footer {
             margin-top: 20px;
-            text-align: right;
+            text-align: left;
         }
 
         h3,
@@ -72,9 +72,9 @@
 <body>
     <div class="header" style="display: flex; align-items: center;">
         <!-- Menambahkan Logo di Sebelah Kiri -->
-        {{-- <img src="{{ public_path('assets/tapin.png') }}" alt="Logo Tapin" style="height: 80px; margin-right: 15px;"> --}}
+        <img src="{{ public_path('assets/tapin.png') }}" alt="Logo Tapin" style="height: 50%; margin-right: 15px;">
         <div>
-            <h3 class="uppercase">DINAS KEPEDUDUKAN DAN PENCATATAN SIPIL</h3>
+            <h1 class="uppercase">DINAS KEPEDUDUKAN DAN PENCATATAN SIPIL</h1>
             <h2 class="uppercase">LAPORAN KARTU KENDALI KEGIATAN</h2>
             <p>Periode: {{ $startDate ? date('d M Y', strtotime($startDate)) : '...' }} -
                 {{ $endDate ? date('d M Y', strtotime($endDate)) : '...' }}</p>
@@ -118,7 +118,12 @@
                 <tr>
                     <td style="font-weight: bold;">Anggaran Awal</td>
                     <td>:</td>
-                    <td>Rp {{ number_format($firstItem->kodeRekening->anggaran_awal, 0, ',', '.') }}</td>
+                    <td>Rp. {{ number_format($firstItem->kodeRekening->anggaran_awal, 0, ',', '.') }}</td>
+                </tr>
+                <tr>
+                    <td style="font-weight: bold;">Sisa Anggaran </td>
+                    <td>:</td>
+                    <td>Rp. {{ number_format($firstItem->kodeRekening->anggaran, 0, ',', '.') }}</td>
                 </tr>
             </table>
 
@@ -128,22 +133,35 @@
                         <th>No</th>
                         <th>Deskripsi</th>
                         <th>Realisasi</th>
-                        <th>Sisa Anggaran</th>
+
                         <th>Tanggal</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @php $no = 1; @endphp
+                    @php
+                        $no = 1;
+                        $totalRealisasi = 0; // Inisialisasi variabel untuk total
+                    @endphp
                     @foreach ($group as $item)
+                        @php
+                            $totalRealisasi += $item->anggaran; // Menjumlahkan total realisasi
+                        @endphp
                         <tr>
                             <td>{{ $no++ }}</td>
                             <td>{{ $item->untuk_pengeluaran }}</td>
-                            <td>Rp {{ number_format($item->anggaran, 0, ',', '.') }}</td>
-                            <td>Rp {{ number_format($firstItem->kodeRekening->anggaran, 0, ',', '.') }}</td>
+                            <td>Rp. {{ number_format($item->anggaran, 0, ',', '.') }}</td>
                             <td>{{ date('d-m-Y', strtotime($item->created_at)) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="2" style="text-align: center; font-weight: bold;">Total Realisasi</td>
+                        <td style="font-weight: bold;">Rp. {{ number_format($totalRealisasi, 0, ',', '.') }}</td>
+                        <td></td>
+                    </tr>
+                </tfoot>
+
             </table>
         </div>
         <div class="credit">
@@ -154,13 +172,38 @@
         </div>
     @endforeach
 
+    <table class="footer" style="width: 100%; border-collapse: collapse; margin-bottom: 10px;">
+        <tr>
+            <td style="width: 12%; font-weight: bold;">Total Anggaran</td>
+            <td style="width: 2%;">:</td>
+            <td>Rp. {{ number_format($totalAnggaran, 0, ',', '.') }}</td>
+        </tr>
+    </table>
 
 
-    <div class="footer">
-        <h3>Total Anggaran: Rp {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
+
+    <div style="width: 100%; margin-top: 50px; text-align: center;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 30px;">
+            <tr>
+                <td style="width: 50%; text-align: center;">
+                    <strong>Mengetahui / Meyetujui :</strong><br>
+                    <strong>Kepala Dinas Kependudukan dan Pencatatan Sipil</strong>
+                    <br><br><br><br> <br><br><br><br>
+                    <strong>{{ $kadis->nama ?? '-' }}</strong>
+                    <br>
+                    NIP. {{ $bendahara->nip ?? '-' }}
+                </td>
+                <td style="width: 50%; text-align: center;">
+                    <strong>Rantau, {{ now()->format('d-m-Y ') }}</strong><br>
+                    <strong>BENDAHARA PENGELUARAN SKPD</strong>
+                    <br><br><br><br> <br><br><br><br>
+                    <strong>{{ $bendahara->nama ?? '-' }}</strong> <!-- Ganti dengan nama bendahara -->
+                    <br>
+                    NIP : {{ $bendahara->nip ?? '-' }} <!-- Ganti dengan NIP bendahara -->
+                </td>
+            </tr>
+        </table>
     </div>
-
-
 </body>
 
 </html>
