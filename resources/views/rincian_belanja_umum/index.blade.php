@@ -60,7 +60,7 @@
                                         <td class="px-4 py-2">{{ $rincian->untuk_pengeluaran ?? '-' }}</td>
                                         <td class="px-4 py-2">Rp {{ number_format($rincian->sebesar, 0, ',', '.') }}
                                         </td>
-                                        <td class="px-4 py-2">{{ $rincian->subKegiatan->created_at ?? '-' }}</td>
+                                        <td class="px-4 py-2">{{ $rincian->created_at ?? '-' }}</td>
                                         <td class="px-4 py-2">{{ $rincian->bidang->nama_bidang ?? '-' }}</td>
                                         </td>
                                         <td class="px-4 py-2 text-center">
