@@ -68,16 +68,19 @@
                 </div>
 
                 {{-- Kode Rekening --}}
-                <div>
-                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">Kode
-                        Rekening</label>
+                <div class="w-full">
+                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">
+                        Kode Rekening
+                    </label>
                     <select id="kode_rekening_id" name="kode_rekening_id"
-                        class="block w-full px-3 py-2 border rounded-lg">
-                        <option value="">Pilih Kode Rekening</option>
+                        class="select2 block w-full h-12 px-4 py-3 text-lg text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+
+                        <option value="" selected>Pilih Kode Rekening</option>
                         @foreach ($kode_rekenings as $kode_rekening)
-                            <option value="{{ $kode_rekening->id }}"
-                                {{ $rincianSppd->kode_rekening_id == $kode_rekening->id ? 'selected' : '' }}>
-                                {{ $kode_rekening->nama_kode_rekening }}
+                            <option value="{{ $kode_rekening->id }}">
+                                {{ $kode_rekening->nama_kode_rekening }} <p class="text-blue-700">| Bidang:</p>
+                                {{ $kode_rekening->bidang->nama_bidang ?? 'Tidak Ada Bidang' }} <p>| Anggaran : Rp.</p>
+                                {{ number_format($kode_rekening->anggaran, 0, ',', '.') }}
                             </option>
                         @endforeach
                     </select>
@@ -224,13 +227,11 @@
                 {{-- Penerima --}}
                 <div>
                     <label for="penerima_id" class="block mb-2 text-sm font-medium text-gray-700">Penerima</label>
-                    <select id="penerima_id" name="penerima_id" class="block w-full px-3 py-2 border rounded-lg">
-                        <option value="">Pilih Penerima</option>
+                    <select id="penerima_id" name="penerima_id"
+                        class="select2 block w-full h-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                        <option value="" selected>Pilih Penerima</option>
                         @foreach ($pegawais as $pegawai)
-                            <option value="{{ $pegawai->id }}"
-                                {{ old('penerima_id', $rincianSppd->penerima_id) == $pegawai->id ? 'selected' : '' }}>
-                                {{ $pegawai->nama }}
-                            </option>
+                            <option value="{{ $pegawai->id }}">{{ $pegawai->nama }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -246,3 +247,43 @@
         </div>
     </div>
 </x-app-layout>
+
+<script>
+    $(document).ready(function() {
+        // Inisialisasi Select2
+        $('#penerima_id').select2({
+            placeholder: "Pilih Penerima",
+            allowClear: true
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#kode_rekening_id').select2({
+            placeholder: "Pilih Kode Rekening",
+            allowClear: true,
+            width: '100%',
+            // containerCssClass: 'text-lg p-3 h-12' // Menambahkan ukuran teks & padding
+        });
+    });
+</script>
+<style>
+    /* Perbesar input Select2 */
+    .select2-container .select2-selection--single {
+        height: 50px !important;
+        /* Tinggi dropdown */
+        padding: 10px !important;
+        font-size: 16px;
+        /* Ukuran teks */
+    }
+
+    /* Perbesar dropdown saat dibuka */
+    .select2-dropdown {
+        font-size: 16px !important;
+    }
+
+    /* Sesuaikan tinggi elemen pencarian Select2 */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px !important;
+    }
+</style>

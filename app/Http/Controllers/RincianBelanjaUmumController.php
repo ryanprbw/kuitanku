@@ -60,6 +60,7 @@ class RincianBelanjaUmumController extends Controller
                         $query->where('nama_bidang', 'like', '%' . $search . '%');
                     });
             })
+            ->orderBy('created_at', 'desc')
             ->paginate(50);
 
         return view('rincian_belanja_umum.index', compact('rincianBelanja', 'totalAnggaran', 'search'));
