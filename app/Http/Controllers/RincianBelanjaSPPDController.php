@@ -43,7 +43,6 @@ class RincianBelanjaSppdController extends Controller
             })
             ->sum('sebesar');
 
-        // Mengambil rincian belanja dengan relasi yang diperlukan
         $rincianSppd = RincianBelanjaSppd::with([
             'program',
             'kegiatan',
