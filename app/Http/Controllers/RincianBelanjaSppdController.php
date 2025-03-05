@@ -87,6 +87,14 @@ class RincianBelanjaSppdController extends Controller
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
+        $kepala_dinas = KepalaDinas::orderBy('id', 'asc')->get();
+        $latest_kepala_dinas_id = KepalaDinas::latest()->value('id'); // Ambil ID terbaru
+        $pptks = PPTK::all();
+        $default_pptk_id = 4; // Set default ID 4
+        $bendaharas = Bendahara::all();
+        $default_bendahara_id = 3; // ID Default Bendahara
+
+
 
         return view('rincian_belanja_sppd.create', compact(
             'programs',
@@ -96,7 +104,10 @@ class RincianBelanjaSppdController extends Controller
             'kepala_dinas',
             'pptks',
             'bendaharas',
-            'pegawais'
+            'pegawais',
+            'latest_kepala_dinas_id',
+            'default_pptk_id',
+            'default_bendahara_id'
         ));
     }
 

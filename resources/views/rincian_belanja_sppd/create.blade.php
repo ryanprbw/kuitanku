@@ -62,17 +62,21 @@
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
                         <option value="" selected>Pilih Sub Kegiatan</option>
                         @foreach ($sub_kegiatans as $sub_kegiatan)
-                            <option value="{{ $sub_kegiatan->id }}">{{ $sub_kegiatan->nama_sub_kegiatan }}</option>
+                            @if ($sub_kegiatan->id == 29)
+                                <option value="{{ $sub_kegiatan->id }}">{{ $sub_kegiatan->nama_sub_kegiatan }}</option>
+                            @endif
                         @endforeach
                     </select>
                 </div>
 
                 {{-- Kode Rekening --}}
-                <div>
-                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">Kode
-                        Rekening</label>
+                <div class="w-full">
+                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">
+                        Kode Rekening
+                    </label>
                     <select id="kode_rekening_id" name="kode_rekening_id"
-                        class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+                        class="select2 block w-full h-12 px-4 py-3 text-lg text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
+
                         <option value="" selected>Pilih Kode Rekening</option>
                         @foreach ($kode_rekenings as $kode_rekening)
                             <option value="{{ $kode_rekening->id }}">
@@ -83,6 +87,7 @@
                         @endforeach
                     </select>
                 </div>
+
 
                 <!-- Tambahkan script untuk mengaktifkan Select2 -->
 
@@ -152,23 +157,30 @@
                         Dinas</label>
                     <select id="kepala_dinas_id" name="kepala_dinas_id"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-                        <option value="" selected>Pilih Kepala Dinas</option>
+                        <option value="" disabled>Pilih Kepala Dinas</option>
                         @foreach ($kepala_dinas as $dinas)
-                            <option value="{{ $dinas->id }}">{{ $dinas->nama }}</option>
+                            <option value="{{ $dinas->id }}"
+                                {{ $dinas->id == $latest_kepala_dinas_id ? 'selected' : '' }}>
+                                {{ $dinas->nama }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
+
 
                 {{-- PPTK --}}
                 <div>
                     <label for="pptk_id" class="block mb-2 text-sm font-medium text-gray-700">PPTK</label>
                     <select id="pptk_id" name="pptk_id"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-                        <option value="" selected>Pilih PPTK</option>
+                        <option value="" disabled>Pilih PPTK</option>
                         @foreach ($pptks as $pptk)
-                            <option value="{{ $pptk->id }}">{{ $pptk->nama }}</option>
+                            <option value="{{ $pptk->id }}" {{ $pptk->id == 4 ? 'selected' : '' }}>
+                                {{ $pptk->nama }}
+                            </option>
                         @endforeach
                     </select>
+
                 </div>
 
                 {{-- Bendahara --}}
@@ -176,11 +188,14 @@
                     <label for="bendahara_id" class="block mb-2 text-sm font-medium text-gray-700">Bendahara</label>
                     <select id="bendahara_id" name="bendahara_id"
                         class="block w-full px-3 py-2 text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-                        <option value="" selected>Pilih Bendahara</option>
+                        <option value="" disabled>Pilih Bendahara</option>
                         @foreach ($bendaharas as $bendahara)
-                            <option value="{{ $bendahara->id }}">{{ $bendahara->nama }}</option>
+                            <option value="{{ $bendahara->id }}" {{ $bendahara->id == 3 ? 'selected' : '' }}>
+                                {{ $bendahara->nama }}
+                            </option>
                         @endforeach
                     </select>
+
                 </div>
                 <div>
                     <label for="bulan" class="block mb-2 text-sm font-medium text-gray-700">Diterima pada
@@ -312,10 +327,11 @@
 </script>
 <script>
     $(document).ready(function() {
-        // Mengaktifkan Select2 pada elemen select dengan id "kode_rekening_id"
         $('#kode_rekening_id').select2({
-            placeholder: "Pilih Kode Rekening", // Placeholder saat dropdown kosong
-            allowClear: true // Menambahkan opsi untuk menghapus pilihan
+            placeholder: "Pilih Kode Rekening",
+            allowClear: true,
+            width: '100%',
+            // containerCssClass: 'text-lg p-3 h-12' // Menambahkan ukuran teks & padding
         });
     });
 </script>
@@ -338,3 +354,33 @@
         });
     });
 </script>
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        let select = document.getElementById("sub_kegiatan_id");
+        Array.from(select.options).forEach(option => {
+            if (option.value !== "29") {
+                option.style.display = "none";
+            }
+        });
+    });
+</script>
+<style>
+    /* Perbesar input Select2 */
+    .select2-container .select2-selection--single {
+        height: 50px !important;
+        /* Tinggi dropdown */
+        padding: 10px !important;
+        font-size: 16px;
+        /* Ukuran teks */
+    }
+
+    /* Perbesar dropdown saat dibuka */
+    .select2-dropdown {
+        font-size: 16px !important;
+    }
+
+    /* Sesuaikan tinggi elemen pencarian Select2 */
+    .select2-container--default .select2-selection--single .select2-selection__rendered {
+        line-height: 30px !important;
+    }
+</style>
