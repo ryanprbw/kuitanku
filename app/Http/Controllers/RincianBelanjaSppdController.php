@@ -112,6 +112,7 @@ class RincianBelanjaSppdController extends Controller
         ));
     }
 
+
     public function store(Request $request)
     {
         $request->validate([
@@ -133,29 +134,34 @@ class RincianBelanjaSppdController extends Controller
             'penerima_id' => 'required|exists:pegawais,id',
         ]);
 
-        $data = $request->all();
-        $data['bidang_id'] = auth()->user()->bidang_id;
-        $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
-        $data['bulan'] = $request->bulan ?: null;
-        // Mencari Kode Rekening yang terkait
-        $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $data['bidang_id'] = auth()->user()->bidang_id;
+            $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
+            $data['bulan'] = $request->bulan ?: null;
 
-        // Mengecek apakah anggaran mencukupi
-        if ($kodeRekening->anggaran < $request->sebesar) {
-            return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
+            // Cek apakah anggaran mencukupi (tanpa memotong di sini)
+            $kodeRekening = KodeRekening::where('id', $request->kode_rekening_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            if ($kodeRekening->anggaran < $request->sebesar) {
+                DB::rollBack();
+                return redirect()->back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi.'])->withInput();
+            }
+
+            // Simpan data (pemotongan anggaran dilakukan otomatis di model)
+            RincianBelanjaSppd::create($data);
+
+            DB::commit();
+            return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil ditambahkan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
-
-        // Kurangi anggaran pada Kode Rekening
-        $kodeRekening->anggaran -= $request->sebesar;
-
-        // Simpan perubahan anggaran
-        $kodeRekening->save();
-
-        // Menyimpan rincian belanja
-        RincianBelanjaSppd::create($data);
-
-        return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil ditambahkan.');
     }
+
 
 
     public function show($id)
@@ -206,7 +212,6 @@ class RincianBelanjaSppdController extends Controller
         try {
             $rincianSppd = RincianBelanjaSppd::findOrFail($id);
 
-            // Validasi input
             $request->validate([
                 'program_id' => 'required|exists:programs,id',
                 'kegiatan_id' => 'required|exists:kegiatans,id',
@@ -226,39 +231,25 @@ class RincianBelanjaSppdController extends Controller
                 'penerima_id' => 'required|exists:pegawais,id',
             ]);
 
-            // Ambil semua data yang akan diupdate
             $data = $request->all();
             $data['bidang_id'] = auth()->user()->bidang_id;
             $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
             $data['bulan'] = $request->bulan ?: null;
-            // Ambil kode rekening terkait
-            $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
-            $selisih = $rincianSppd->sebesar - $request->sebesar;
 
-            // Mengelola perubahan anggaran
-            if ($selisih > 0) {
-                // Jika anggaran lama lebih besar, kembalikan selisih ke kode rekening
-                $kodeRekening->anggaran += $selisih;
-            } elseif ($selisih < 0) {
-                // Jika anggaran baru lebih besar, cek apakah kode rekening mencukupi
-                if ($kodeRekening->anggaran < abs($selisih)) {
-                    return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi.'])->withInput();
-                }
-                // Jika cukup, kurangi kode rekening
-                $kodeRekening->anggaran -= abs($selisih);
+            // Validasi cukupnya anggaran sebelum update
+            $kodeRekening = KodeRekening::where('id', $request->kode_rekening_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $selisih = $rincianSppd->sebesar - $request->sebesar;
+            if ($selisih < 0 && $kodeRekening->anggaran < abs($selisih)) {
+                return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi.'])->withInput();
             }
 
-            // Simpan perubahan anggaran pada kode rekening
-            $kodeRekening->save();
-
-            // Update rincian belanja
             $rincianSppd->update($data);
-
-            // Commit transaksi jika semuanya berhasil
             DB::commit();
             return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil diperbarui.');
         } catch (\Throwable $e) {
-            // Rollback transaksi jika ada kesalahan
             DB::rollBack();
             return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
         }
@@ -266,18 +257,15 @@ class RincianBelanjaSppdController extends Controller
 
 
 
+
     public function destroy($id)
     {
         $rincianSppd = RincianBelanjaSppd::findOrFail($id);
-
-        $kodeRekening = KodeRekening::findOrFail($rincianSppd->kode_rekening_id);
-        $kodeRekening->anggaran += $rincianSppd->sebesar;
-        $kodeRekening->save();
-
         $rincianSppd->delete();
 
         return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil dihapus.');
     }
+
 
     private function terbilang($angka)
     {

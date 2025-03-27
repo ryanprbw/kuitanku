@@ -384,3 +384,10 @@
         line-height: 30px !important;
     }
 </style>
+<script>
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerText = 'Menyimpan...'; // opsional
+    });
+</script>
