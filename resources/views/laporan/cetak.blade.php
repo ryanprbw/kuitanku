@@ -33,7 +33,7 @@
             width: 100%;
             border-collapse: collapse;
             margin-top: 10px;
-            page-break-inside: avoid;
+            /* page-break-inside: avoid; */
         }
 
         .table th,
@@ -63,8 +63,8 @@
             position: fixed;
             bottom: 0px;
             right: 20px;
-            font-size: 11px;
-            color: rgb(106, 106, 106);
+            font-size: 9px;
+            color: rgb(197, 197, 197);
         }
     </style>
 </head>

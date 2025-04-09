@@ -48,10 +48,13 @@ class LaporanController extends Controller
             return $group->sum('anggaran');
         });
 
+        $totalRincian = $rincianBelanja->sum(fn($group) => $group->count());
+
+
         // Ambil data untuk filter bidang
         $bidangOptions = Bidang::all();
 
-        return view('laporan.index', compact('rincianBelanja', 'totalAnggaran', 'bidangOptions'));
+        return view('laporan.index', compact('rincianBelanja', 'totalAnggaran', 'bidangOptions', 'totalRincian'));
     }
 
 

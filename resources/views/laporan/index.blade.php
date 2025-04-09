@@ -59,8 +59,11 @@
                         </button>
                     </form>
 
-                    <h3 class="text-lg font-medium text-gray-900">Total Kuitansi yang telah dibuat:
-                        {{ $rincianBelanja->count() }}</h3>
+                    <h3 class="text-lg font-medium text-gray-900">
+                        Total Kuitansi yang telah dibuat: {{ $totalRincian }}
+                    </h3>
+
+
                     <h3 class="text-lg font-semibold">Total Belanja yang digunakan: Rp
                         {{ number_format($totalAnggaran, 0, ',', '.') }}</h3>
 
@@ -107,6 +110,13 @@
                                         </tr>
                                     @endforeach
                                 @endforeach
+                            <tfoot>
+                                <tr class="bg-gray-100 font-semibold">
+                                    <td colspan="6" class="text-right px-4 py-2">Total</td>
+                                    <td class="px-4 py-2">{{ $totalRincian }} Kuitansi</td>
+                                    <td class="px-4 py-2">Rp. {{ number_format($totalAnggaran, 0, ',', '.') }}</td>
+                                </tr>
+                            </tfoot>
                             </tbody>
                         </table>
                     </div>
