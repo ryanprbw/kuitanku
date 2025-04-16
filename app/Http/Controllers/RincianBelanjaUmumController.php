@@ -157,32 +157,6 @@ class RincianBelanjaUmumController extends Controller
         return view('rincian_belanja_umum.show', compact('rincian'));
     }
 
-    public function edit($id)
-    {
-        $user = auth()->user();
-        $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
-        $programs = Program::all();
-        $kegiatans = Kegiatan::all();
-        $sub_kegiatans = SubKegiatan::all();
-        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
-        $kepala_dinas = KepalaDinas::all();
-        $pptks = Pptk::all();
-        $bendaharas = Bendahara::all();
-        $pegawais = Pegawai::all();
-
-        return view('rincian_belanja_umum.edit', compact(
-            'rincianBelanja',
-            'programs',
-            'kegiatans',
-            'sub_kegiatans',
-            'kode_rekenings',
-            'kepala_dinas',
-            'pptks',
-            'bendaharas',
-            'pegawais'
-        ));
-    }
-
     public function update(Request $request, $id)
     {
         $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
@@ -206,43 +180,76 @@ class RincianBelanjaUmumController extends Controller
             'penerima_id' => 'required|exists:pegawais,id',
         ]);
 
-        $data = $request->all();
-        $data['bruto'] = $request->sebesar;
-        $data['pbjt'] = $request->dpp * 0.1;
-        $data['total_pajak'] = ($request->pph21 ?? 0) + ($request->pph22 ?? 0) + ($request->pph23 ?? 0) + ($request->ppn ?? 0);
-        $data['netto'] = $request->sebesar - $data['total_pajak'];
-        $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
+        DB::beginTransaction();
+        try {
+            $data = $request->all();
+            $data['bruto'] = $request->sebesar;
+            $data['pbjt'] = $request->dpp * 0.1;
+            $data['total_pajak'] = ($request->pph21 ?? 0) + ($request->pph22 ?? 0) + ($request->pph23 ?? 0) + ($request->ppn ?? 0);
+            $data['netto'] = $request->sebesar - $data['total_pajak'];
+            $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
 
-        $kodeRekening = KodeRekening::findOrFail($request->kode_rekening_id);
+            $kodeRekeningLama = KodeRekening::where('id', $rincianBelanja->kode_rekening_id)->lockForUpdate()->firstOrFail();
+            $kodeRekeningBaru = KodeRekening::where('id', $request->kode_rekening_id)->lockForUpdate()->firstOrFail();
 
-        $selisih = $rincianBelanja->sebesar - $request->sebesar;
+            if ($kodeRekeningLama->id === $kodeRekeningBaru->id) {
+                // Rekening tidak berubah
+                $selisih = $rincianBelanja->sebesar - $request->sebesar;
 
-        if ($selisih > 0) {
-            $kodeRekening->anggaran += $selisih;
-        } elseif ($kodeRekening->anggaran < abs($selisih)) {
-            return redirect()->back()->withErrors(['anggaran' => 'Anggaran pada Kode Rekening tidak mencukupi untuk perubahan.'])->withInput();
-        } else {
-            $kodeRekening->anggaran -= abs($selisih);
+                if ($selisih > 0) {
+                    $kodeRekeningBaru->anggaran += $selisih;
+                } elseif ($kodeRekeningBaru->anggaran < abs($selisih)) {
+                    return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi untuk perubahan.'])->withInput();
+                } else {
+                    $kodeRekeningBaru->anggaran -= abs($selisih);
+                }
+
+                $kodeRekeningBaru->save();
+            } else {
+                // Rekening diganti
+                // Kembalikan ke rekening lama
+                $kodeRekeningLama->anggaran += $rincianBelanja->sebesar;
+                $kodeRekeningLama->save();
+
+                // Kurangi dari rekening baru
+                if ($kodeRekeningBaru->anggaran < $request->sebesar) {
+                    return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi pada rekening baru.'])->withInput();
+                }
+
+                $kodeRekeningBaru->anggaran -= $request->sebesar;
+                $kodeRekeningBaru->save();
+            }
+
+            $rincianBelanja->update($data);
+            DB::commit();
+            return redirect()->route('rincian_belanja_umum.index')->with('success', 'Data berhasil diperbarui.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
-
-        $kodeRekening->save();
-        $rincianBelanja->update($data);
-
-        return redirect()->route('rincian_belanja_umum.index')->with('success', 'Data berhasil diperbarui.');
     }
+
 
     public function destroy($id)
     {
-        $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
+        DB::beginTransaction();
+        try {
+            $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
 
-        $kodeRekening = KodeRekening::findOrFail($rincianBelanja->kode_rekening_id);
-        $kodeRekening->anggaran += $rincianBelanja->sebesar;
-        $kodeRekening->save();
+            $kodeRekening = KodeRekening::lockForUpdate()->findOrFail($rincianBelanja->kode_rekening_id);
+            $kodeRekening->anggaran += $rincianBelanja->sebesar;
+            $kodeRekening->save();
 
-        $rincianBelanja->delete();
+            $rincianBelanja->delete();
 
-        return redirect()->route('rincian_belanja_umum.index')->with('success', 'Data berhasil dihapus.');
+            DB::commit();
+            return redirect()->route('rincian_belanja_umum.index')->with('success', 'Data berhasil dihapus dan anggaran dikembalikan.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+        }
     }
+
 
     private function terbilang($angka)
     {

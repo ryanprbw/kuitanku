@@ -84,7 +84,7 @@ class RincianBelanjaSppdController extends Controller
         $kegiatans = Kegiatan::all();
         $sub_kegiatans = SubKegiatan::all();
         $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
-        $kepala_dinas = KepalaDinas::all();
+        // $kepala_dinas = KepalaDinas::all();
         $pptks = Pptk::all();
         $bendaharas = Bendahara::all();
         $pegawais = Pegawai::all();
@@ -236,35 +236,75 @@ class RincianBelanjaSppdController extends Controller
             $data['terbilang_rupiah'] = $this->terbilangRupiah($request->sebesar);
             $data['bulan'] = $request->bulan ?: null;
 
-            // Validasi cukupnya anggaran sebelum update
-            $kodeRekening = KodeRekening::where('id', $request->kode_rekening_id)
-                ->lockForUpdate()
-                ->firstOrFail();
+            $kodeRekeningLama = KodeRekening::where('id', $rincianSppd->kode_rekening_id)->lockForUpdate()->firstOrFail();
+            $kodeRekeningBaru = KodeRekening::where('id', $request->kode_rekening_id)->lockForUpdate()->firstOrFail();
 
-            $selisih = $rincianSppd->sebesar - $request->sebesar;
-            if ($selisih < 0 && $kodeRekening->anggaran < abs($selisih)) {
-                return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi.'])->withInput();
+            // Jika rekening tetap, hanya cek selisih
+            if ($kodeRekeningLama->id === $kodeRekeningBaru->id) {
+                $selisih = $rincianSppd->sebesar - $request->sebesar;
+
+                if ($selisih < 0 && $kodeRekeningBaru->anggaran < abs($selisih)) {
+                    return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi.'])->withInput();
+                }
+
+                // Update anggaran
+                $kodeRekeningBaru->anggaran += $selisih;
+                $kodeRekeningBaru->save();
+
+            } else {
+                // Kembalikan anggaran ke rekening lama
+                $kodeRekeningLama->anggaran += $rincianSppd->sebesar;
+                $kodeRekeningLama->save();
+
+                // Kurangi dari rekening baru
+                if ($kodeRekeningBaru->anggaran < $request->sebesar) {
+                    return back()->withErrors(['anggaran' => 'Anggaran tidak mencukupi di rekening baru.'])->withInput();
+                }
+
+                $kodeRekeningBaru->anggaran -= $request->sebesar;
+                $kodeRekeningBaru->save();
             }
 
+            // Simpan data SPPD
             $rincianSppd->update($data);
+
             DB::commit();
             return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil diperbarui.');
         } catch (\Throwable $e) {
             DB::rollBack();
-            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()]);
+            return redirect()->back()->withErrors(['error' => 'Terjadi kesalahan: ' . $e->getMessage()])->withInput();
         }
     }
 
 
 
 
+
     public function destroy($id)
     {
-        $rincianSppd = RincianBelanjaSppd::findOrFail($id);
-        $rincianSppd->delete();
+        DB::beginTransaction();
+        try {
+            $rincianSppd = RincianBelanjaSppd::findOrFail($id);
 
-        return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil dihapus.');
+            // Ambil kode rekening dan kembalikan anggarannya
+            $kodeRekening = KodeRekening::where('id', $rincianSppd->kode_rekening_id)
+                ->lockForUpdate()
+                ->firstOrFail();
+
+            $kodeRekening->anggaran += $rincianSppd->sebesar;
+            $kodeRekening->save();
+
+            // Hapus data SPPD
+            $rincianSppd->delete();
+
+            DB::commit();
+            return redirect()->route('rincian_belanja_sppd.index')->with('success', 'Data berhasil dihapus dan anggaran dikembalikan.');
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return redirect()->back()->withErrors(['error' => 'Gagal menghapus data: ' . $e->getMessage()]);
+        }
     }
+
 
 
     private function terbilang($angka)
