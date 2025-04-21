@@ -12,6 +12,7 @@ use App\Models\Pptk;
 use App\Models\Bendahara;
 use App\Models\Pegawai;
 use Barryvdh\DomPDF\Facade\Pdf;
+use DB;
 use Illuminate\Http\Request;
 
 class RincianBelanjaUmumController extends Controller
@@ -140,6 +141,33 @@ class RincianBelanjaUmumController extends Controller
 
         return redirect()->route('rincian_belanja_umum.index')->with('success', 'Data berhasil ditambahkan.');
     }
+    public function edit($id)
+    {
+        $user = auth()->user();
+        $rincianBelanja = RincianBelanjaUmum::findOrFail($id);
+
+        $programs = Program::all();
+        $kegiatans = Kegiatan::all();
+        $sub_kegiatans = SubKegiatan::all();
+        $kode_rekenings = KodeRekening::where('bidang_id', $user->bidang_id)->get();
+        $kepala_dinas = KepalaDinas::all();
+        $pptks = Pptk::all();
+        $bendaharas = Bendahara::all();
+        $pegawais = Pegawai::all();
+
+        return view('rincian_belanja_umum.edit', compact(
+            'rincianBelanja',
+            'programs',
+            'kegiatans',
+            'sub_kegiatans',
+            'kode_rekenings',
+            'kepala_dinas',
+            'pptks',
+            'bendaharas',
+            'pegawais'
+        ));
+    }
+
 
     public function show($id)
     {
