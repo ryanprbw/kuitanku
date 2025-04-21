@@ -70,19 +70,20 @@
                 </div>
 
                 {{-- Kode Rekening --}}
-                <div class="w-full">
-                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">
-                        Kode Rekening
-                    </label>
-                    <select id="kode_rekening_id" name="kode_rekening_id"
-                        class="select2 block w-full h-12 px-4 py-3 text-lg text-gray-700 border rounded-lg focus:ring focus:ring-blue-200">
-
+                <div>
+                    <label for="kode_rekening_id" class="block mb-2 text-sm font-medium text-gray-700">Kode
+                        Rekening</label>
+                    <select id="kode_rekening_id" name="kode_rekening_id" class="w-full">
                         <option value="" selected>Pilih Kode Rekening</option>
                         @foreach ($kode_rekenings as $kode_rekening)
-                            <option value="{{ $kode_rekening->id }}">
-                                {{ $kode_rekening->nama_kode_rekening }} | Bidang:
-                                {{ $kode_rekening->bidang->nama_bidang ?? 'Tidak Ada Bidang' }} | Anggaran : Rp.
-                                {{ number_format($kode_rekening->anggaran, 0, ',', '.') }}
+                            <option value="{{ $kode_rekening->id }}"
+                                data-html="
+                                        <strong>{{ $kode_rekening->nama_kode_rekening }}</strong><br>
+                                        <span style='color:green;'>Sisa Anggaran: Rp. {{ number_format($kode_rekening->anggaran, 0, ',', '.') }}</span><br>
+                                        <span style='color:red;'>Anggaran Awal: Rp. {{ number_format($kode_rekening->anggaran_awal, 0, ',', '.') }}</span><br>
+                                        <span style='color:gray;'>Bidang: {{ $kode_rekening->bidang->nama_bidang ?? 'Tidak Ada' }}</span>
+                                    ">
+                                {{ $kode_rekening->nama_kode_rekening }}
                             </option>
                         @endforeach
                     </select>
@@ -389,5 +390,19 @@
         const btn = this.querySelector('button[type="submit"]');
         btn.disabled = true;
         btn.innerText = 'Menyimpan...'; // opsional
+    });
+</script>
+<script>
+    $(document).ready(function() {
+        $('#kode_rekening_id').select2({
+            templateResult: function(data) {
+                if (!data.id) return data.text;
+                const html = $(data.element).data('html');
+                return $(html);
+            },
+            templateSelection: function(data) {
+                return data.text; // hanya teks yang ditampilkan saat dipilih
+            }
+        });
     });
 </script>
