@@ -84,6 +84,7 @@ class BarangController extends Controller
             'nama_barang' => 'required|string|max:255',
             'harga_satuan' => 'required|numeric',
             'jumlah' => 'required|integer',
+            'keterangan' => 'required|string|max:255',
         ]);
 
         // Hitung nilai saldo
@@ -108,6 +109,7 @@ class BarangController extends Controller
             'harga_satuan' => 'required|numeric',
             'jumlah' => 'required|integer',
             'nilai_saldo' => 'required|numeric',
+            'keterangan' => 'required|string|max:255',
         ]);
 
         $barang = Barang::findOrFail($id);

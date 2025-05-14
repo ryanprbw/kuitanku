@@ -39,7 +39,8 @@
                         <!-- Jumlah -->
                         <div class="mb-4">
                             <label for="jumlah" class="block text-sm font-medium text-gray-700">Jumlah</label>
-                            <input type="number" name="jumlah" id="jumlah" value="{{ old('jumlah', $barang->jumlah) }}"
+                            <input type="number" name="jumlah" id="jumlah"
+                                value="{{ old('jumlah', $barang->jumlah) }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             @error('jumlah')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -54,6 +55,15 @@
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50"
                                 readonly>
                             @error('nilai_saldo')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <div class="mb-4">
+                            <label for="keterangan" class="block text-sm font-medium text-gray-700">Keterangan</label>
+                            <input type="text" name="keterangan" id="keterangan"
+                                value="{{ old('keterangan', $barang->keterangan) }}"
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
+                            @error('keterangan')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>
@@ -73,7 +83,7 @@
 
     <!-- JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const hargaSatuanInput = document.getElementById('harga_satuan');
             const jumlahInput = document.getElementById('jumlah');
             const nilaiSaldoInput = document.getElementById('nilai_saldo');
