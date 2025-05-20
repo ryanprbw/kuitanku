@@ -14,9 +14,18 @@
                     <h3 class="text-lg font-semibold mb-4">Informasi Barang</h3>
                     <table class="min-w-full border-collapse border border-gray-200 mb-6">
                         <tr>
+                            <th class="border border-gray-200 px-4 py-2">Bidang</th>
+                            <td class="border border-gray-200 px-4 py-2">{{ $barang->bidang->nama_bidang }}</td>
+                        </tr>
+                        <tr>
                             <th class="border border-gray-200 px-4 py-2">Nama Barang</th>
                             <td class="border border-gray-200 px-4 py-2">{{ $barang->nama_barang }}</td>
                         </tr>
+                        <tr>
+                            <th class="border border-gray-200 px-4 py-2">Satuan</th>
+                            <td class="border border-gray-200 px-4 py-2">{{ $barang->satuan }}</td>
+                        </tr>
+
                         <tr>
                             <th class="border border-gray-200 px-4 py-2">Harga Satuan</th>
                             <td class="border border-gray-200 px-4 py-2">{{ number_format($barang->harga_satuan, 2) }}
@@ -30,6 +39,14 @@
                             <th class="border border-gray-200 px-4 py-2">Nilai Saldo</th>
                             <td class="border border-gray-200 px-4 py-2">{{ number_format($barang->nilai_saldo, 2) }}
                             </td>
+                        </tr>
+                        <tr>
+                            <th class="border border-gray-200 px-4 py-2">Keterangan</th>
+                            <td class="border border-gray-200 px-4 py-2">{{ $barang->keterangan }}</td>
+                        </tr>
+                        <tr>
+                            <th class="border border-gray-200 px-4 py-2">Tanggal dibuat</th>
+                            <td class="border border-gray-200 px-4 py-2">{{ $barang->created_at }}</td>
                         </tr>
                     </table>
 
@@ -48,7 +65,7 @@
                             <thead class="bg-gray-50">
                                 <tr>
                                     <th class="border border-gray-200 px-4 py-2">No</th>
-                                    <th class="border border-gray-200 px-4 py-2">Tanggal</th>
+                                    <th class="border border-gray-200 px-4 py-2">Tanggal Masuk / Keluar</th>
                                     <th class="border border-gray-200 px-4 py-2">Mutasi Tambah</th>
                                     <th class="border border-gray-200 px-4 py-2">Mutasi Keluar</th>
                                     <th class="border border-gray-200 px-4 py-2">Harga Satuan</th>
@@ -56,6 +73,7 @@
                                     <th class="border border-gray-200 px-4 py-2">Nilai Saldo</th>
                                     <th class="border border-gray-200 px-4 py-2">Sisa Saldo Barang</th>
                                     <th class="border border-gray-200 px-4 py-2">Keterangan</th>
+                                    <th class="border border-gray-200 px-4 py-2">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -70,12 +88,29 @@
                                         <td class="border border-gray-200 px-4 py-2">{{ $detail->jumlah }}</td>
                                         <td class="border border-gray-200 px-4 py-2">
                                             {{ number_format($detail->nilai_saldo, 2) }}</td>
-                                        <td class="border border-gray-200 px-4 py-2">{{ $detail->sisa_saldo_barang }}</td>
+                                        <td class="border border-gray-200 px-4 py-2">{{ $detail->sisa_saldo_barang }}
+                                        </td>
                                         <td class="border border-gray-200 px-4 py-2">{{ $detail->keterangan }}</td>
+
+                                        <td class="border border-gray-200 px-4 py-2">
+                                            <a href="{{ route('barang.detail.edit', [$barang->id, $detail->id]) }}"
+                                                class="text-blue-500 hover:text-blue-700">
+                                                Edit
+                                            </a>
+                                            <form
+                                                action="{{ route('barang.detail.destroy', [$barang->id, $detail->id]) }}"
+                                                method="POST" style="display:inline;">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit"
+                                                    class="text-red-500 hover:text-red-700">Hapus</button>
+                                            </form>
+                                        </td>
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="border border-gray-200 px-4 py-2 text-center">Tidak ada data
+                                        <td colspan="9" class="border border-gray-200 px-4 py-2 text-center">Tidak
+                                            ada data
                                             transaksi untuk barang ini.</td>
                                     </tr>
                                 @endforelse

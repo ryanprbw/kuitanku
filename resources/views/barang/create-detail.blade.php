@@ -15,7 +15,8 @@
 
                         <!-- Tanggal -->
                         <div class="mb-4">
-                            <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal</label>
+                            <label for="tanggal" class="block text-sm font-medium text-gray-700">Tanggal Masuk /
+                                Keluar</label>
                             <input type="date" name="tanggal" id="tanggal" value="{{ old('tanggal') }}"
                                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                             @error('tanggal')
@@ -75,7 +76,8 @@
                         <!-- Nilai Saldo -->
                         <div class="mb-4">
                             <label for="nilai_saldo" class="block text-sm font-medium text-gray-700">Nilai Saldo</label>
-                            <input type="number" step="0.01" name="nilai_saldo" id="nilai_saldo" value="0" readonly
+                            <input type="number" step="0.01" name="nilai_saldo" id="nilai_saldo" value="0"
+                                readonly
                                 class="mt-1 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 focus:ring-opacity-50">
                         </div>
 
@@ -104,7 +106,7 @@
 
     <!-- JavaScript -->
     <script>
-        document.addEventListener('DOMContentLoaded', function () {
+        document.addEventListener('DOMContentLoaded', function() {
             const mutasiTambahInput = document.getElementById('mutasi_tambah');
             const mutasiKeluarInput = document.getElementById('mutasi_keluar');
             const hargaSatuanInput = document.getElementById('harga_satuan');

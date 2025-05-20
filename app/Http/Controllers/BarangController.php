@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Barang;
+use App\Models\Bidang;
 use App\Models\DetailBarang;
 use Illuminate\Http\Request;
 
@@ -10,8 +11,9 @@ class BarangController extends Controller
 {
     public function index()
     {
+        $bidangs = Bidang::all(); // Ambil semua data Bidang
         $barang = Barang::all();
-        return view('barang.index', compact('barang'));
+        return view('barang.index', compact('barang', 'bidangs'));
     }
 
     public function show($id)
@@ -27,9 +29,9 @@ class BarangController extends Controller
     {
         // Ambil data barang berdasarkan ID
         $barang = Barang::findOrFail($barang_id);
-
+        $bidangs = Bidang::all(); // Ambil semua data Bidang
         // Return ke view tambah detail barang
-        return view('barang.create-detail', compact('barang'));
+        return view('barang.create-detail', compact('barang', 'bidangs'));
     }
     public function storeDetail(Request $request, $barang_id)
     {
@@ -75,13 +77,18 @@ class BarangController extends Controller
 
     public function create()
     {
-        return view('barang.create');
+        $bidangs = Bidang::all(); // Ambil semua data Bidang
+        return view('barang.create', compact('bidangs'));
+        // return view('kode_rekening.create', compact('subKegiatans', 'bidangs'));
     }
 
     public function store(Request $request)
     {
+        // dd($request->all());  // Memeriksa data yang diterima
         $validated = $request->validate([
+            'bidang_id' => 'required|exists:bidangs,id', // ✅ Tambahkan validasi bidang
             'nama_barang' => 'required|string|max:255',
+            'satuan' => 'required|string|max:255',
             'harga_satuan' => 'required|numeric',
             'jumlah' => 'required|integer',
             'keterangan' => 'required|string|max:255',
@@ -98,14 +105,17 @@ class BarangController extends Controller
 
     public function edit($id)
     {
+        $bidangs = Bidang::all(); // Ambil semua data Bidang
         $barang = Barang::findOrFail($id);
-        return view('barang.edit', compact('barang'));
+        return view('barang.edit', compact('barang', 'bidangs'));
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
+            'bidang_id' => 'required|exists:bidangs,id', // ✅ Tambahkan validasi bidang
             'nama_barang' => 'required|string|max:255',
+            'satuan' => 'required|string|max:255',
             'harga_satuan' => 'required|numeric',
             'jumlah' => 'required|integer',
             'nilai_saldo' => 'required|numeric',
@@ -125,4 +135,95 @@ class BarangController extends Controller
 
         return redirect()->route('barang.index')->with('success', 'Barang berhasil dihapus.');
     }
+
+    public function editDetail($barang_id, $detail_id)
+    {
+        // Ambil data barang dan detail barang berdasarkan ID
+        $barang = Barang::findOrFail($barang_id);
+        $detailBarang = DetailBarang::findOrFail($detail_id);
+
+        // Mengembalikan view dengan data barang dan detail barang
+        return view('barang.edit-detail', compact('barang', 'detailBarang'));
+    }
+
+
+    public function updateDetail(Request $request, $barang_id, $detail_id)
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'tanggal' => 'required|date',
+            'mutasi_tambah' => 'nullable|integer',
+            'mutasi_keluar' => 'nullable|integer',
+            'keterangan' => 'nullable|string|max:255',
+        ]);
+
+        // Ambil data barang dan detail barang
+        $barang = Barang::findOrFail($barang_id);
+        $detailBarang = DetailBarang::findOrFail($detail_id);
+
+        // Perbarui detail barang
+        $detailBarang->update($validated);
+
+        // Update data barang jika ada perubahan
+        $barang->jumlah = $barang->jumlah + ($validated['mutasi_tambah'] ?? 0) - ($validated['mutasi_keluar'] ?? 0);
+        $barang->nilai_saldo = $barang->jumlah * $barang->harga_satuan;
+        $barang->save();
+
+        return redirect()->route('barang.show', $barang_id)->with('success', 'Detail barang berhasil diperbarui.');
+    }
+    public function destroyDetail($barang_id, $detail_id)
+    {
+        // Ambil data barang dan detail barang berdasarkan ID
+        $barang = Barang::findOrFail($barang_id);
+        $detailBarang = DetailBarang::findOrFail($detail_id);
+
+        // Hapus data detail barang
+        $detailBarang->delete();
+
+        // Perbarui data barang (jumlah dan nilai saldo)
+        $barang->jumlah = $barang->detailBarang->sum('mutasi_tambah') - $barang->detailBarang->sum('mutasi_keluar');
+        $barang->nilai_saldo = $barang->jumlah * $barang->harga_satuan;
+        $barang->save();
+
+        return redirect()->route('barang.show', $barang_id)->with('success', 'Detail barang berhasil dihapus.');
+    }
+    public function mutasi(Request $request)
+    {
+        // Ambil semua barang untuk dropdown (opsional)
+        $barangs = Barang::all();
+
+        // Ambil parameter filter
+        $barangId = $request->input('barang_id');
+        $tanggalAwal = $request->input('tanggal_awal');
+        $tanggalAkhir = $request->input('tanggal_akhir');
+
+        $query = DetailBarang::with('barang');
+
+        if ($barangId) {
+            $query->where('barang_id', $barangId);
+        }
+
+        if ($tanggalAwal && $tanggalAkhir) {
+            $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
+        }
+
+        $detailBarangs = collect(); // Default kosong
+        if ($barangId || ($tanggalAwal && $tanggalAkhir)) {
+            $query = DetailBarang::with('barang');
+
+            if ($barangId) {
+                $query->where('barang_id', $barangId);
+            }
+
+            if ($tanggalAwal && $tanggalAkhir) {
+                $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
+            }
+
+            $detailBarangs = $query->orderBy('tanggal')->get();
+        }
+
+        return view('barang.mutasi', compact('barangs', 'detailBarangs', 'barangId', 'tanggalAwal', 'tanggalAkhir'));
+    }
+
+
 }

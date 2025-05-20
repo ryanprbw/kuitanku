@@ -61,11 +61,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporansppd', [LaporanSppdController::class, 'index'])->name('laporan_sppd.index');
 
 
+    Route::get('/barang/mutasi', [BarangController::class, 'mutasi'])->name('barang.mutasi');
     Route::resource('barang', BarangController::class);
     Route::get('/barang/{barang_id}/detail/create', [BarangController::class, 'createDetail'])->name('barang.detail.create');
     // Simpan detail barang
     Route::post('/barang/{barang_id}/detail', [BarangController::class, 'storeDetail'])->name('barang.detail.store');
-
+    Route::get('/barang/{barang}/detail/{detail}/edit', [BarangController::class, 'editDetail'])->name('barang.detail.edit');
+    Route::put('/barang/{barang}/detail/{detail}', [BarangController::class, 'updateDetail'])->name('barang.detail.update');
+    Route::delete('/barang/{barang}/detail/{detail}', [BarangController::class, 'destroyDetail'])->name('barang.detail.destroy');
 
     // Route::prefix('buku-pengeluaran-barang')->group(function () {
     //     Route::get('/', [BukuPengeluaranBarangController::class, 'index'])->name('barang.index');

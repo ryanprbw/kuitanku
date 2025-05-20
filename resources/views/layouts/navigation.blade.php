@@ -73,15 +73,13 @@
                         </x-nav-link>
                     </li>
                     <li>
-                        <x-nav-link :href="route('sub_kegiatan.index')"
-                            :active="request()->routeIs('sub_kegiatan.index')"
+                        <x-nav-link :href="route('sub_kegiatan.index')" :active="request()->routeIs('sub_kegiatan.index')"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('SUB KEGIATAN') }}
                         </x-nav-link>
                     </li>
                     <li>
-                        <x-nav-link :href="route('kode_rekening.index')"
-                            :active="request()->routeIs('kode_rekening.index')"
+                        <x-nav-link :href="route('kode_rekening.index')" :active="request()->routeIs('kode_rekening.index')"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75 pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('KODE REKENING') }}
                         </x-nav-link>
@@ -115,8 +113,7 @@
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('KODE REKENING BIDANG') }}
                         </x-nav-link> --}}
-                        <x-nav-link :href="route('rincian_belanja_umum.index')"
-                            :active="request()->routeIs('rincian_belanja_umum.index')"
+                        <x-nav-link :href="route('rincian_belanja_umum.index')" :active="request()->routeIs('rincian_belanja_umum.index')"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('RINCIAN BELANJA UMUM') }}
                         </x-nav-link>
@@ -131,8 +128,7 @@
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('KODE REKENING BIDANG') }}
                         </x-nav-link> --}}
-                        <x-nav-link :href="route('rincian_belanja_sppd.index')"
-                            :active="request()->routeIs('rincian_belanja_sppd.index')"
+                        <x-nav-link :href="route('rincian_belanja_sppd.index')" :active="request()->routeIs('rincian_belanja_sppd.index')"
                             class="flex items-center w-full p-2 text-gray-900 transition duration-75  pl-11 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
                             {{ __('RINCIAN BELANJA SPPD') }}
                         </x-nav-link>
@@ -150,57 +146,60 @@
 
                 </ul>
             </li>
-            <li>
-                <button type="button" id="dropdownButtonLaporan"
-                    class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-70"
-                    aria-controls="dropdown-laporan" data-collapse-toggle="dropdown-laporan">
-                    <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"
-                        viewBox="0 0 24 24">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4" />
-                    </svg>
-                    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap"> Laporan </span>
-                    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
-                        viewBox="0 0 10 6">
-                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="m1 1 4 4 4-4" />
-                    </svg>
-                </button>
+            @if (Auth::user()->role !== 'bidang')
+                <li>
+                    <button type="button" id="dropdownButtonLaporan"
+                        class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-70"
+                        aria-controls="dropdown-laporan" data-collapse-toggle="dropdown-laporan">
+                        <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+                            aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                            fill="none" viewBox="0 0 24 24">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M5 19V4a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v13H7a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h12M9 3v14m7 0v4" />
+                        </svg>
+                        <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap"> Laporan </span>
+                        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+                            viewBox="0 0 10 6">
+                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2" d="m1 1 4 4 4-4" />
+                        </svg>
+                    </button>
 
-                <ul id="dropdown-laporan" class="hidden py-2 space-y-2">
-                    <li>
+                    <ul id="dropdown-laporan" class="hidden py-2 space-y-2">
+                        <li>
 
-                        <x-nav-link :href="route('laporan.index')"
-                            class="flex pl-6 items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <x-nav-link :href="route('laporan.index')"
+                                class="flex pl-6 items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
 
-                            <span class="flex-1 ms-3 whitespace-nowrap">Lap. Rincian Belanja Umum</span>
-                        </x-nav-link>
-                    </li>
-                    <li>
+                                <span class="flex-1 ms-3 whitespace-nowrap">Lap. Rincian Belanja Umum</span>
+                            </x-nav-link>
+                        </li>
+                        <li>
 
-                        <x-nav-link :href="route('laporan_sppd.index')"
-                            class="flex pl-6 items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
+                            <x-nav-link :href="route('laporan_sppd.index')"
+                                class="flex pl-6 items-center w-full p-2 text-gray-900 transition duration-75 group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700">
 
 
-                            <span class="flex-1  ms-3 whitespace-nowrap">Lap. Belanja SPPD</span>
-                        </x-nav-link>
-                    </li>
+                                <span class="flex-1  ms-3 whitespace-nowrap">Lap. Belanja SPPD</span>
+                            </x-nav-link>
+                        </li>
 
-                </ul>
-            </li>
-
+                    </ul>
+                </li>
+            @endif
             {{-- Data Pegawai --}}
             <li>
                 <button type="button"
                     class="flex items-center w-full p-2 text-base text-gray-900 transition duration-75  group hover:bg-gray-100 dark:text-white dark:hover:bg-gray-700"
                     aria-controls="dropdown-pegawai" data-collapse-toggle="dropdown-pegawai">
                     <svg class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 dark:text-gray-400 group-hover:text-gray-900 dark:group-hover:text-white"
-                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 18">
+                        aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+                        viewBox="0 0 20 18">
                         <path
                             d="M14 2a3.963 3.963 0 0 0-1.4.267 6.439 6.439 0 0 1-1.331 6.638A4 4 0 1 0 14 2Zm1 9h-1.264A6.957 6.957 0 0 1 15 15v2a2.97 2.97 0 0 1-.184 1H19a1 1 0 0 0 1-1v-1a5.006 5.006 0 0 0-5-5ZM6.5 9a4.5 4.5 0 1 0 0-9 4.5 4.5 0 0 0 0 9ZM8 10H5a5.006 5.006 0 0 0-5 5v2a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-2a5.006 5.006 0 0 0-5-5Z" />
                     </svg>
-                    <span class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">{{ __('Data Pegawai') }}</span>
+                    <span
+                        class="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">{{ __('Data Pegawai') }}</span>
                     <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
                         viewBox="0 0 10 6">
                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
