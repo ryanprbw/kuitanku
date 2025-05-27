@@ -189,27 +189,18 @@ class BarangController extends Controller
     }
     public function mutasi(Request $request)
     {
-        // Ambil semua barang untuk dropdown (opsional)
         $barangs = Barang::all();
+        $bidangs = Bidang::all();
 
-        // Ambil parameter filter
         $barangId = $request->input('barang_id');
+        $bidangId = $request->input('bidang_id');
         $tanggalAwal = $request->input('tanggal_awal');
         $tanggalAkhir = $request->input('tanggal_akhir');
 
-        $query = DetailBarang::with('barang');
+        $detailBarangs = collect();
 
-        if ($barangId) {
-            $query->where('barang_id', $barangId);
-        }
-
-        if ($tanggalAwal && $tanggalAkhir) {
-            $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
-        }
-
-        $detailBarangs = collect(); // Default kosong
-        if ($barangId || ($tanggalAwal && $tanggalAkhir)) {
-            $query = DetailBarang::with('barang');
+        if ($barangId || $bidangId || ($tanggalAwal && $tanggalAkhir)) {
+            $query = DetailBarang::with(['barang.bidang']);
 
             if ($barangId) {
                 $query->where('barang_id', $barangId);
@@ -219,11 +210,19 @@ class BarangController extends Controller
                 $query->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir]);
             }
 
+            if ($bidangId) {
+                // Filter berdasarkan bidang dari relasi ke tabel barang
+                $query->whereHas('barang', function ($q) use ($bidangId) {
+                    $q->where('bidang_id', $bidangId);
+                });
+            }
+
             $detailBarangs = $query->orderBy('tanggal')->get();
         }
 
-        return view('barang.mutasi', compact('barangs', 'detailBarangs', 'barangId', 'tanggalAwal', 'tanggalAkhir'));
+        return view('barang.mutasi', compact('barangs', 'bidangs', 'detailBarangs', 'barangId', 'bidangId', 'tanggalAwal', 'tanggalAkhir'));
     }
+
 
 
 }

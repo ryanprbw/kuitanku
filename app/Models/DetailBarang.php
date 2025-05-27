@@ -12,6 +12,7 @@ class DetailBarang extends Model
     protected $table = 'detail_barang';
     protected $fillable = [
         'barang_id',
+        'bidang_id',
         'tanggal',
         'mutasi_tambah',
         'mutasi_keluar',
@@ -25,5 +26,10 @@ class DetailBarang extends Model
     public function barang()
     {
         return $this->belongsTo(Barang::class, 'barang_id');
+    }
+
+    public function bidang()
+    {
+        return $this->belongsTo(Bidang::class, 'bidang_id');
     }
 }
